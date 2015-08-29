@@ -1,0 +1,26 @@
+# Laravel
+/bootstrap/compiled.php
+.settings/
+SyncToy_dacc0227-99cb-4ec9-aef9-372c5e0cd58b.dat
+.buildpath
+.project
+
+# Configuration
+/app/config/local
+/app/config/staging
+/app/config/production
+app/config/database.php
+app/config/mail.php
+
+# Composer
+composer.phar
+composer.lock
+
+# OS
+.DS_Store
+.idea/
+vagrant
+.vagrant
+
+# Packages
+_ide_helper.php
