@@ -11,7 +11,7 @@ return array (
 		'activated' => '可用',
 		'created_at' => '建立日期',
 		'records_per_page' => '每页资料数量',
-		
+
 		'password' => '密码',
 		'confirm_password' => '重覆密码',
 		'activate_user' => '激活用户',

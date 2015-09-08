@@ -2,7 +2,8 @@
 
 class Program extends Eloquent
 {
-	public function campus(){
+    protected $table = 'programs';
+    public function campus(){
 		return $this->belongsTo('Campus');
 	}
 }

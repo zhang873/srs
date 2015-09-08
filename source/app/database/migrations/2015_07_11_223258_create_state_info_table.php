@@ -17,7 +17,7 @@ class CreateStateInfoTable extends Migration {
             Schema::create('state_info', function ($table) {
                 $table->engine = 'InnoDB';
                 $table->increments('id');
-                $table->integer('campus_id')->unique()->unsigned()->index();;
+                $table->integer('campus_id')->unique()->unsigned()->index();
                 $table->tinyInteger('campus_selection');
                 $table->tinyInteger('campus_confirmation');
                 $table->tinyInteger('province_student_selection');

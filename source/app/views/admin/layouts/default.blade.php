@@ -51,6 +51,8 @@
     <link rel="stylesheet" href="{{asset('assets/css/datatables-bootstrap.css')}}">
     <link rel="stylesheet" href="{{asset('assets/css/colorbox.css')}}">
 
+    <link rel="stylesheet" href="{{asset('assets/css/dataTables.tableTools.css')}}">
+
 	<style>
 	body {
 		padding: 60px 0;
@@ -153,13 +155,19 @@
 	<!-- ./ container -->
 
 	<!-- Javascripts -->
-    <script src="{{asset('/assets/js/jquery.min.js')}}"></script>
+    <script src="{{asset('assets/js/jquery.js')}}"></script>
+    <script src="{{asset('assets/js/jquery.min.js')}}"></script>
+    <script src="{{asset('assets/js/jquery.dataTables.js')}}"></script>
+    <script src="{{asset('assets/js/jquery.dataTables.min.js')}}"></script>
+    <script src="{{asset('assets/js/datatables.fnReloadAjax.js')}}"></script>
+    <script src="{{asset('/assets/js/dataTables.tableTools.js')}}"></script>
+
     <script src="{{asset('bootstrap/js/bootstrap.min.js')}}"></script>
     <script src="{{asset('assets/js/wysihtml5/wysihtml5-0.3.0.js')}}"></script>
     <script src="{{asset('assets/js/wysihtml5/bootstrap-wysihtml5.js')}}"></script>
-    <script src="{{asset('/assets/js/jquery.dataTables.min.js')}}"></script>
+
     <script src="{{asset('assets/js/datatables-bootstrap.js')}}"></script>
-    <script src="{{asset('assets/js/datatables.fnReloadAjax.js')}}"></script>
+
     <script src="{{asset('assets/js/jquery.colorbox.js')}}"></script>
     <script src="{{asset('assets/js/prettify.js')}}"></script>
 

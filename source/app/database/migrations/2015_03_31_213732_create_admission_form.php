@@ -12,8 +12,8 @@ class CreateAdmissionForm extends Migration {
 public function up()
 	{
 		// Create the `admissions` table
-            if (Schema::hasTable('admissions') == false)
-            {
+        if (Schema::hasTable('admissions') == false)
+        {
             Schema::create('admissions', function($table)
             {
                 $table->engine = 'InnoDB';

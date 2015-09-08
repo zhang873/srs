@@ -46,13 +46,13 @@ class AdminEduDepartmentController extends AdminController {
 
         //prepare model and save
         $edudepartment = new EduDepartment();
-        $edudepartment->name = Input::get('name');
-        $edudepartment->code = Input::get('code');
+        $edudepartment->department_name = Input::get('name');
+        $edudepartment->sysid = Input::get('code');
 
         if ($edudepartment->validate(Input::all())) {
             //verify overall
-            $recordexists = DB::table('education_department')->where('name', Input::get('name'))
-                ->where('code', Input::get('code'))
+            $recordexists = DB::table('department_info')
+                ->where('sysid', Input::get('code'))
                 ->count();
 
             if ($recordexists > 0) {
@@ -79,7 +79,7 @@ class AdminEduDepartmentController extends AdminController {
     }
 
     public function getDataForAdd() {
-        $programs = DB::table ('education_department')->select( 'id', 'name', 'code');
+        $programs = DB::table ('department_info')->select( 'id', 'department_name', 'sysid');
         return Datatables::of ( $programs )
             ->add_column('itemnumber', '', 0)
             ->add_column ( 'actions', '

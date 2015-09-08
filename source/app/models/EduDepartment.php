@@ -9,8 +9,8 @@
 
 class EduDepartment extends Eloquent
 {
-    protected $table = 'education_department';
-    
+    protected $table = 'department_info';
+
     private $rules = array (
         'name' => 'required',
         'code' => 'required'
@@ -20,9 +20,13 @@ class EduDepartment extends Eloquent
     
     public function validate($data)
     {
+        $messages = array(
+            'name.required' => '请输入部门名称',
+            'code.required' => '请输入部门代码'
+        );
         // make a new validator object
-        $v = Validator::make($data, $this->rules);
-        
+        $v = Validator::make($data, $this->rules, $messages);
+
         // check for failure
         if ($v->fails())
         {

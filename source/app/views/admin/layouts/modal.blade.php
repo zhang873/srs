@@ -122,12 +122,13 @@
     <script src="{{asset('assets/js/jquery.colorbox.js')}}"></script>
     <script src="{{asset('assets/js/prettify.js')}}"></script>
 
- <script type="text/javascript">
+<script type="text/javascript">
 $(document).ready(function(){
 $('.close_popup').click(function(){
-parent.oTable.fnReloadAjax();
-parent.jQuery.fn.colorbox.close();
-return false;
+    if (parent.oTable != null)
+        parent.oTable.fnReloadAjax();
+    parent.jQuery.fn.colorbox.close();
+    return false;
 });
 $('#deleteForm').submit(function(event) {
 var form = $(this);
