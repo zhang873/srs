@@ -1,0 +1,51 @@
+<?php
+/**
+ * Created by PhpStorm.
+ * User: ggsj
+ * Date: 2015/6/17
+ * Time: 11:02
+ */
+return array(
+    'mid' => '序号',
+    'campus_name' => '教学点名称',
+    'campus_id' => '教学点代码',
+    'selection' => '选择',
+    'selection_all' => '全选',
+    'selection_none' => '全否',
+    'authority' => '权限',
+    'campus'                     => '教学点',
+    'group_name'                => '班名称',
+    'year'                       => '年度',
+    'semester'                  => '学期',
+    'course_code'                 => '课程编号',
+    'course_name'               => '课程名称',
+    'credit'                     => '学分',
+    'is_obligatory'             => '课程性质',
+    'number'                     => '人数',
+    'student_id'                => '学号',
+    'student_name'              => '姓名',
+    'major'                      => '专业名称',
+    'selection_status'          => '首再次选课',
+    'year_in'                       => '入学年度',
+    'semester_in'                  => '入学学期',
+    'select_times'              => '选择次数',
+    'course_num'                 => '课程编号',
+    'course_classification'    => '课程层次',
+    'course_remark'             => '课程备注',
+    'mclass_num'                     => '管理班班号',
+    'mclass_name'                     => '管理班名称',
+    'is_turn'                     => '是否转报考',
+    'is_first'                   => '是否首次选课',
+    'is_out'                     => '是否外专业课程',
+    'teaching_plan_code'            => '教学计划编号',
+    'suggested_semester'     => '建议开设学期',
+    'balance'                  => '余额',
+    'cost'                  => '费用',
+    'confirm'                  => '确认',
+    'delete'                  => '删除',
+    'selection_confirm'             => '选课确认',
+    'new_selection'             => '新选课',
+    'is_confirm'                     => '是否确认',
+    'selection_number'           => '选课人数',
+    'total_credit'                     => '总学分',
+);
