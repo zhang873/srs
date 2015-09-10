@@ -31,6 +31,7 @@ public function up()
                 
                 $table->timestamps();
                 
+                $table->integer('student_id')->unsigned()->index();
                 $table->foreign('student_id')->references('studentno')->on('admissions')->onDelete('cascade');
 
             });

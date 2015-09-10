@@ -97,6 +97,7 @@ class CreateCampus extends Migration {
                 $table->timestamps();
 
                 // need to save the relationship with "user"
+                $table->integer('school_id');
                 $table->foreign('userID')->references('id')->on('users');
                 $table->foreign('school_id')->references('school_id')->on('school_info');
             });

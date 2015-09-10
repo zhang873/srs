@@ -26,6 +26,14 @@ class CreateStudentStatusChangingTable extends Migration {
                 $table->string('remark',255);
                 $table->tinyint('is_deleted');
                 
+                $table->unsigned('original_major_id');
+                $table->unsigned('current_major_id');
+                $table->unsigned('original_campus_id');
+                $table->unsigned('current_campus_id');
+                $table->string('original_class_id');
+                $table->string('current_class_id');              
+                $table->integer('student_id')->unsigned()->index();
+                
                 $table->foreign('original_major_id')->references('idnumber')->on('rawprograms');
                 $table->foreign('current_major_id')->references('idnumber')->on('rawprograms');
                 $table->foreign('original_campus_id')->references('id')->on('campuses');

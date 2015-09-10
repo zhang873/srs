@@ -23,6 +23,7 @@ class CreateExpelDropoutRecovery extends Migration {
                 $table->tinyint('is_deleted');
                 $table->timestamps();
                 
+                $table->integer('student_id')->unsigned()->index();
                 $table->foreign('student_id')->references('studentno')->on('admissions');
                 
             });
@@ -40,7 +41,8 @@ class CreateExpelDropoutRecovery extends Migration {
                 $table->string('approval_suggestion_province');              
                 $table->tinyint('is_deleted');
                 $table->timestamps();
-
+                
+                $table->integer('student_id')->unsigned()->index();
         		$table->foreign('student_id')->references('studentno')->on('admissions');
 
         	});
@@ -59,6 +61,7 @@ class CreateExpelDropoutRecovery extends Migration {
                 $table->tinyint('is_deleted');
                 $table->timestamps();
                 
+                $table->integer('student_id')->unsigned()->index();
                 $table->foreign('student_id')->references('studentno')->on('admissions');
                 
         	});

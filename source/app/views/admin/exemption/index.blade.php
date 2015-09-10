@@ -7,100 +7,88 @@
     <div class="page-header">
         <h3>
             {{{ $title }}}
-
-            <div class="pull-right">
-                <a href="{{{ URL::to('admin/exemption/input_student') }}}" class="btn btn-small btn-info iframe"><span class="glyphicon glyphicon-plus-sign"></span>{{{ Lang::get('admin/exemption/title.input_student') }}}</a>
-            </div>
         </h3>
+        <div class="pull-right">
+
+            <a href="{{{ URL::to('admin/exemption/input_student') }}}" ><span class="glyphicon glyphicon-plus-sign"></span>{{{ Lang::get('admin/exemption/title.input_student') }}}</a>
+
+        </div>
+        <br>
     </div>
 
    {{-- choose input form --}}
-    <form id="input_course" class="form-horizontal" method="post" action="{{ URL::to('admin/exemption/query_list') }}" autocomplete="off">
-
         <!-- CSRF Token -->
         <input type="hidden" name="_token" value="{{{ csrf_token() }}}" />
         <!-- ./ csrf token -->
 
-        <table id="query_exemption" class="table table-striped table-hover" align="center" width="500px">
+        <div class="form-group" align="center">
+            <h3>
+                {{{ Lang::get('admin/exemption/title.choose_query') }}}
+            </h3>
+        </div>
+        <div class="form-group" align="center" width="600px">
+            <label for="student_id" class="rlbl" >{{ Lang::get('admin/exemption/table.student_id') }}&nbsp;&nbsp;&nbsp;&nbsp;</label>
+            <input tabindex="1" type="text" name="student_id" id="student_id" value="{{ Input::old('student_id') }}" style="width:200px;">
+
+            <label for="student_name" class="rlbl">{{ Lang::get('admin/exemption/table.student_name') }}&nbsp;&nbsp;&nbsp;&nbsp;</label>
+            <input tabindex="2" type="text" name="student_name" id="student_name" value="{{ Input::old('student_name') }}" style="width:200px;">
+        </div>
+        <div class="form-group" align="center"  width="600px">
+            <label for="major_classification" class="rlbl" >{{ Lang::get('admin/exemption/table.major_classification') }}&nbsp;&nbsp;&nbsp;&nbsp;</label>
+            <select name="major_classification" id="major_classification" style="width:200px;">
+                <option value="2">全部</option>
+                <option value="14">专科</option>
+                <option value="12">本科</option>
+            </select>
+            <label for="final_result" class="rlbl">{{ Lang::get('admin/exemption/table.final_result') }}&nbsp;&nbsp;&nbsp;&nbsp;</label>
+            <select name="final_result" id="final_result" style="width:200px;">
+                <option value="3">全部</option>
+                <option value="0">不通过</option>
+                <option value="1">通过</option>
+                <option value="2">未审核</option>
+            </select>
+        </div>
+        <div class="form-group" align="center"  width="600px">
+            <label for="application_year" class="rlbl" >{{ Lang::get('admin/exemption/table.input_year') }}&nbsp;&nbsp;&nbsp;&nbsp;</label>
+            <select name="application_year" id="application_year" style="width:200px;">
+                <option value="全部">全部</option>
+                @for ($i=2000;$i<2025;$i++)
+                    <option value="{{{$i}}}">{{$i}}</option>
+                @endfor
+            </select>
+            <label for="application_semester" class="rlbl">{{ Lang::get('admin/exemption/table.input_semester') }}&nbsp;&nbsp;&nbsp;&nbsp;</label>
+            <select name="application_semester" id="application_semester" style="width:200px;">
+                <option value="2">全部</option>
+                <option value="0">秋季</option>
+                <option value="1">春季</option>
+            </select>
+        </div>
+        <div class="form-group" align="center"  width="600px">
+            <label for="major" class="rlbl" >{{ Lang::get('admin/exemption/table.major_inside') }}&nbsp;&nbsp;&nbsp;&nbsp;</label>
+            <select name="major" id="major" style="width:200px;">
+                <option value="全部">全部</option>
+                @foreach($rawprograms as $rawprogram)
+                    <option value="{{$rawprogram->id}}">{{$rawprogram->name}}</option>
+                @endforeach
+            </select>
+            <label for="student_classification" class="rlbl">{{ Lang::get('admin/exemption/table.student_classification') }}&nbsp;&nbsp;&nbsp;&nbsp;</label>
+            <select name="student_classification" id="student_classification" style="width:200px;">
+                <option value="">全部</option>
+                <option value="11">学历</option>
+                <option value="12">课程</option>
+            </select>
+        </div>
+        <div  class="form-group" align="center">
+            <button type="submit" id="btnQuery" name="state" value="2" class="btn btn-small btn-info" >查询</button>
+        </div>
+   <br>
+   <br>
+   <br>
+    <div align="center">
+        {{{ Lang::get('admin/exemption/title.exemption_info') }}}
+    </div>
+        <table id="exemption" class="table table-striped table-hover table-bordered" align="center">
             <thead>
-            <tr>
-                <td colspan="4" class="col-md-2">{{{ Lang::get('admin/exemption/title.choose_query') }}}</td>
-            </tr>
-            <tr>
-                <td class="col-md-2">{{{ Lang::get('admin/exemption/table.student_id') }}}</td>
-                <td class="col-md-2"><input type="text" name="student_id"></td>
-                <td>{{{ Lang::get('admin/exemption/table.student_name') }}}</td>
-                <td><input type="text" name="student_name"></td>
-            </tr>
-            <tr>
-                <td>{{{ Lang::get('admin/exemption/table.major_classification') }}}</td>
-                <td class="col-md-2">
-                    <select name="major_classification" id="major_classification">
-                        <option value="2">全部</option>
-                        <option value="0">专科</option>
-                        <option value="1">本科</option>
-
-                    </select>
-                </td>
-                <td>{{{ Lang::get('admin/exemption/table.final_result') }}}</td>
-                <td>
-                    <select name="final_result" id="final_result">
-                        <option value="3">全部</option>
-                        <option value="0">不通过</option>
-                        <option value="1">通过</option>
-                        <option value="2">未审核</option>
-
-                    </select>
-                </td>
-            </tr>
-            <tr>
-                <td>{{{ Lang::get('admin/exemption/table.input_year') }}}</td>
-                <td><input type="text" name="input_year"></td>
-                <td>{{{ Lang::get('admin/exemption/table.input_semester') }}}</td>
-                <td class="col-md-2">
-                    <select name="input_semester">
-                        <option value="2">全部</option>
-                        <option value="0">秋季</option>
-                        <option value="1">春季</option>
-
-                    </select>
-                </td>
-            </tr>
-            <tr>
-                <td>{{{ Lang::get('admin/exemption/table.major_inside') }}}</td>
-                <td class="col-md-2">
-                    <select name="major_inside">
-                        <option value="2">全部</option>
-
-                    </select>
-                </td>
-                <td>{{{ Lang::get('admin/exemption/table.student_type') }}}</td>
-                <td>
-                    <select name="student_type">
-                        <option value="2">全部</option>
-                        <option value="0">专科</option>
-                        <option value="1">本科</option>
-                    </select>
-                </td>
-            </tr>
-            <tr>
-                <td>{{{ Lang::get('admin/exemption/table.remark') }}}</td>
-                <td colspan="3"><input type="text" name="remark" style="width: 600px;height: 30px;border-bottom-color:#616161"></td>
-            </tr>
-            <tr>
-                <td colspan="4" align="center"><input type="submit" value="  {{{ Lang::get('admin/exemption/table.query') }}}"> </td>
-            </tr>
-            </thead>
-        </table>
-    </form>
-   <br>
-   <br>
-   <br>
-        <table id="exemption_list" class="table table-striped table-hover" align="center">
-            <thead>
-            <tr>
-                <td colspan="19"  class="col-md-2" align="center">{{{ Lang::get('admin/exemption/title.exemption_info') }}}</td>
-            </tr>
             <tr>
                 <th>{{{ Lang::get('admin/exemption/table.class_id') }}}</th>
                 <th>{{{ Lang::get('admin/exemption/table.student_id') }}}</th>
@@ -122,67 +110,76 @@
                 <th>{{{ Lang::get('admin/exemption/table.remark') }}}</th>
                 <th>{{{ Lang::get('admin/exemption/table.action') }}}</th>
             </tr>
-            @foreach ($exemptions as $exemption)
-                <tr>
-                    <td></td>
-                    <td>{{ $exemption->student_id }}</td>
-                    <td>{{ $exemption->student_name }}</td>
-                    <td></td>
-                    <td></td>
-                    <td>{{ $exemption->course_inside }}</td>
-                    <td>{{ $exemption->classification }}</td>
-                    <td>{{ $exemption->credit }}</td>
-                    <td>{{ $exemption->application_year }}</td>
-                    <td>{{ $exemption->exemption_type_id }}</td>
-                    <td>{{ $exemption->major_name_outer }}</td>
-                    <td>{{ $exemption->course_name_outer }}</td>
-                    <td>{{ $exemption->classification_outer }}</td>
-                    <td>{{ $exemption->credit_outer }}</td>
-                    <td>{{ $exemption->certification_year }}</td>
-                    <td>{{ $exemption->agency_name }}</td>
-                    <td>{{ $exemption->final_result }}</td>
-                    <td>{{ $exemption->remark }}</td>
-                    <td>
-                        <a href="{{{ URL::to('admin/exemption/' . $exemption_id . '/edit' ) }}}" class="iframe btn btn-xs">{{{ Lang::get('button.edit') }}}</a>
-                        <a href="{{{ URL::to('admin/exemption/' . $exemption_id . '/delete' ) }}}" class="iframe btn btn-xs">{{{ Lang::get('button.delete') }}}</a>
-                    </td>
-                </tr>
-            @endforeach
             </thead>
-            <tbody>
-            </tbody>
-        </table>
 
+        </table>
+    <div id="show">
+        <input type="hidden" id="btnValue" value="2" />
+    </div>
+@stop
+
+@section('styles')
+    <style>
+        .rlbl{
+            text-align:right;
+            width:200px;
+
+        }
+    </style>
 @stop
 
 {{-- Scripts --}}
 @section('scripts')
+
     <script type="text/javascript">
         var oTable;
         $(document).ready(function() {
             oTable = $('#exemption').dataTable( {
+                "searching":false,
                 "sDom": "<'row'<'col-md-6'l><'col-md-6'f>r>t<'row'<'col-md-6'i><'col-md-6'p>>",
                 "sPaginationType": "bootstrap",
                 "oLanguage": {
-                    "sLengthMenu": "{{{ Lang::get('admin/exemption/table.records_per_page') }}} _MENU_"
-                },
-                "bProcessing": true,
-                "bServerSide": true,
-                "bAutoWidth":  true,
-                "sAjaxSource": "{{ URL::to('admin/exemption/data') }}",
-                "fnDrawCallback": function ( oSettings ) {
-                    $(".iframe").colorbox({iframe:true, width:"80%", height:"80%"});
-                    if ( oSettings.bSorted || oSettings.bFiltered || oSettings.bDrawing)
-                    {
-                        for ( var i=0, iLen=oSettings.aiDisplayMaster.length ; i<iLen ; i++ )
-                        {
-                            var counter = oSettings._iDisplayStart + i + 1;
-                            $('td:eq(0)', oSettings.aoData[ oSettings.aiDisplay[i] ].nTr ).html( counter );
-                        }
+                    "sLengthMenu": "{{{ Lang::get('admin/exemption/table.records_per_page') }}} _MENU_",
+                    "sProcessing" : "正在加载中......",
+                    "sZeroRecords" : "没有数据！",
+                    "sEmptyTable" : "表中无数据存在！",
+                    "sInfo" : "当前显示 _START_ 到 _END_ 条，共 _TOTAL_ 条记录",
+                    "sInfoEmpty" : "显示0到0条记录",
+                    "sInfoFiltered" : "数据表中共为 _MAX_ 条记录",
+                    "oPaginate" : {
+                        "sFirst" : "首页",
+                        "sPrevious" : "上一页",
+                        "sNext" : "下一页",
+                        "sLast" : "末页"
                     }
                 },
+                 "bFilter": true,
+                 "bProcessing": true,
+                 "bServerSide": true,
+                  "bAutoWidth":  true,
+                 "ajax": {
+                     "url": "{{{ URL::to('admin/exemption/data') }}}",
+                     "data": function ( d ) {
+                        d["student_id"]= $('#student_id').val();
+                        d["student_name"]=$('#student_name').val();
+                        d["major_classification"]=$('#major_classification').val();
+                        d["final_result"]=$('#final_result').val();
+                        d["application_year"]= $('#application_year').val();
+                        d["application_semester"]=$('#application_semester').val();
+                        d["major"]=$('#major').val();
+                        d["student_classification"]=$('#student_classification').val();
+                       // d["state"] == $('#btnValue').val();
+                    }
+                },
+
                 "aaSorting": [ [0,'asc'] ]
             });
+
+            $("#btnQuery").click(function(){
+                $("#btnValue").val(2);
+                oTable.fnReloadAjax();
+            });
         });
+
     </script>
 @stop

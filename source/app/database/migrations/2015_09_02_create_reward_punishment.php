@@ -58,6 +58,10 @@ class CreateRewardPunishment extends Migration {
         		$table->tinyint('is_deleted');
         		$table->timestamps();
         
+        		$table->Integer('reward_level');
+        		$table->Integer('punishment');
+        		$table->Integer('punishment_cause');
+        		$table->integer('student_id')->unsigned()->index();
         		$table->foreign('reward_level')->references('code')->on('reward_info');
         		$table->foreign('punishment')->references('code')->on('punishment_info');
         		$table->foreign('punishment_cause')->references('code')->on('punishment_cause_info');

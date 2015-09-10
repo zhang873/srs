@@ -51,8 +51,6 @@
     <link rel="stylesheet" href="{{asset('assets/css/datatables-bootstrap.css')}}">
     <link rel="stylesheet" href="{{asset('assets/css/colorbox.css')}}">
 
-    <link rel="stylesheet" href="{{asset('assets/css/dataTables.tableTools.css')}}">
-
 	<style>
 	body {
 		padding: 60px 0;
@@ -76,22 +74,148 @@
             <div class="container">
                 <div class="navbar-header">                    
                     <h4 style="color:white;">
-                        This is header title                        
+                        广东开放大学教务管理系统
                     </h4>
                     
                     <!--  Prepare menu items -->
-                    <?php	                    
-	                    $aryadminfeatures = array();
+                    <?php
+                    $aryadminfeatures = array();
 	                    
 	                   	if (Auth::check()) {	                   		
 	                    		// admin features
 	                    		if (Entrust::can('manage_users')) {
-	                    			$aryadminfeatures[] = array(Lang::get('admin/admin.manageusers'), URL::to('admin/users'));
+	                    			$aryadminfeatures[] = array(Lang::get('admin/admin.users'), URL::to('admin/users'));
 	                    		}
 	                    		if (Entrust::can('manage_roles')) {
-	                    			$aryadminfeatures[] = array(Lang::get('admin/admin.manageroles'), URL::to('admin/roles'));
+	                    			$aryadminfeatures[] = array(Lang::get('admin/admin.roles'), URL::to('admin/roles'));
 	                    		}
-	                   	}	                  	
+                            if (Entrust::can('adminschool')) {
+                                $aryadminfeatures[] = array(Lang::get('admin/admin.manageschool'), URL::to('admin/admissions/school'));
+                            }
+                            if (Entrust::can('adminadmission')) {
+                                $aryadminfeatures[] = array(Lang::get('admin/admin.admissions_province'), URL::to('admin/admissions/approve_admissions'));
+                            }
+                            if (Entrust::can('adminrewardpunishment')) {
+                                $aryapprove[] = array(Lang::get('admin/admin.rewardpunish'), URL::to('admin/admissions/approve_reward_punish'));
+                            }
+                            if (Entrust::can('adminunifiedexam')) {
+                                $aryapprove[] = array(Lang::get('admin/admin.unified_exam_province'), URL::to('admin/unified_exam/approve_unified_exam'));
+                            }
+                            if (Entrust::can('adminexemption')) {
+                                $aryapprove[] = array(Lang::get('admin/admin.exemption_province'), URL::to('admin/exemption/approve_exemption'));
+                            }
+                            if (Entrust::can('addadmissions')) {
+                                $aryapply[] = array(Lang::get('admin/admin.admissions_campus'), URL::to('admin/admissions/admissions_campus'));
+                            }
+
+                            if (Entrust::can('adddepart')) {
+                                $aryapply[] = array(Lang::get('admin/admin.department'), URL::to('admin/depart'));
+                            }
+
+                            if (Entrust::can('addexemption')) {
+                                $aryapply[] = array(Lang::get('admin/admin.exemption'), URL::to('admin/exemption'));
+                            }
+
+                            if (Entrust::can('addunifiedexam')) {
+                                $aryapply[] = array(Lang::get('admin/admin.unified_exam'), URL::to('admin/unified_exam'));
+                            }
+
+                            if (Entrust::can('addchangingstudentstatus')) {
+                                $aryapply[] = array(Lang::get('admin/admin.change_admissions'), URL::to('admin/admissions/admissions_change_campus'));
+                            }
+
+                            if (Entrust::can('addcampus')) {
+                                $aryapply[] = array(Lang::get('admin/admin.campus'), URL::to('admin/add_campus'));
+                            }
+                            if (Entrust::can('addprogram')) {
+                                $aryapply[] = array(Lang::get('admin/admin.program'), URL::to('admin/add_program_index'));
+                            }
+                            if (Entrust::can('addplan')) {
+                                $aryapply[] = array(Lang::get('admin/admin.plan'), URL::to('admin/add_plan_index'));
+                            }
+                            if (Entrust::can('manage_groups')) {
+                                $aryapply[] = array(Lang::get('admin/admin.managegroups'), URL::to('admin/admissions/admin_group'));
+                            }
+                            if (Entrust::can('addcampus')) {
+                                $aryapply[] = array(Lang::get('admin/admin.addteacher'), URL::to('admin/teachers/index'));
+                            }
+                            if (Entrust::can('appointgroup')) {
+                                $aryapply[] = array(Lang::get('admin/admin.appoint_group'), URL::to('admin/admissions/admissions_appoint_group'));
+                            }
+                            if (Entrust::can('changing_appointgroup')) {
+                                $aryapply[] = array(Lang::get('admin/admin.change_admissions_appoint_group'), URL::to('admin/admissions/admissions_change_appoint_group'));
+                            }
+                            if (Entrust::can('recoveryadmissions')) {
+                                $aryapply[] = array(Lang::get('admin/admin.recovery_admissions'), URL::to('admin/admissions/application_recovery'));
+                            }
+                            if (Entrust::can('withdrawaladmissions')) {
+                                $aryapply[] = array(Lang::get('admin/admin.withdrawal_admissions'), URL::to('admin/admissions/application_dropout'));
+                            }
+                            if (Entrust::can('rewardpunish')) {
+                                $aryapply[] = array(Lang::get('admin/admin.reward_punish'), URL::to('admin/admissions/admissions_record_reward_punish'));
+                            }
+                            // approval
+                            if (Entrust::can('admincampus')) {
+                                $aryapprove[] = array(Lang::get('admin/admin.campus'), URL::to('admin/approve_campus'));
+                            }
+                            if (Entrust::can('adminprogram')) {
+                                $aryapprove[] = array(Lang::get('admin/admin.program'), URL::to('admin/approve_program_index'));
+                            }
+                            if (Entrust::can('adminplan')) {
+                                $aryapprove[] = array(Lang::get('admin/admin.plan'), URL::to('admin/approve_plan_index'));
+                            }
+                            if (Entrust::can('approvechanging')) {
+                                $aryapprove[] = array(Lang::get('admin/admin.approve_admission_changing'), URL::to('admin/admissions/approve_admission_changing'));
+                            }
+                            // manage student
+                            if (Entrust::can('expel_admissions')) {
+                                $arymanagestudent[] = array(Lang::get('admin/admin.expel_admissions'), URL::to('admin/admissions/expel_admissions'));
+                            }
+                            if (Entrust::can('addstudent')) {
+                                $arymanagestudent[] = array(Lang::get('admin/admin.admission'), URL::to('admin/student/admission'));
+                            }
+                            if (Entrust::can('admissiondetails')) {
+                                $arymanagestudent[] = array(Lang::get('admin/admin.admissiondetails'), URL::to('admin/student'));
+                            }
+                            if (Entrust::can('togglestudentuploadstatus')) {
+                                $arymanagestudent[] = array(Lang::get('admin/admin.studentupload'), URL::to('admin/student/0/UploadStatus_s0'));
+                            }
+                            if (Entrust::can('printconfirmnote')) {
+                                $arymanagestudent[] = array(Lang::get('admin/admin.printconfirmnote'), URL::to('admin/student/printConfirmNote'));
+                            }
+                            if (Entrust::can('printstudentlist')) {
+                                $arymanagestudent[] = array(Lang::get('admin/admin.printstudentlist'), URL::to('admin/student/printStudentList'));
+                            }
+                            // admin features
+                            if (Entrust::can('admintogglestudentuploadstatus')) {
+                                $aryadminfeatures[] = array(Lang::get('admin/admin.admintogglestudentuploadstatus'), URL::to('admin/student/0/0/UploadedStatus'));
+                            }
+                            if (Entrust::can('approvestudent')) {
+                                $aryadminfeatures[] = array(Lang::get('admin/admin.approvestudent'), URL::to('admin/student/0/0/ApproveStudent'));
+                            }
+                            if (Entrust::can('revert_approvestudent')) {
+                                $aryadminfeatures[] = array(Lang::get('admin/admin.revert_approvestudent'), URL::to('admin/student/0/0/RevertS2Student'));
+                            }
+                            if (Entrust::can('printstudentlist_advance')) {
+                                $aryadminfeatures[] = array(Lang::get('admin/admin.printstudentlist'), URL::to('admin/student/printStudentList'));
+                            }
+                            if (Entrust::can('printfinalstudentlist_advance')) {
+                                $aryadminfeatures[] = array(Lang::get('admin/admin.printfinalstudentlist'), URL::to('admin/student/printFinalStudentList'));
+                            }
+                            if (Entrust::can('printconfirmnote')) {
+                                $aryadminfeatures[] = array(Lang::get('admin/admin.printconfirmnote'), URL::to('admin/student/printConfirmNote'));
+                            }
+                            if (Entrust::can('adminexport')) {
+                                $aryadminfeatures[] = array(Lang::get('admin/admin.adminexport'), URL::to('admin/student/adminExport'));
+                            }
+
+                            if (Entrust::can('manage_rawprograms')) {
+                                $aryadminfeatures[] = array(Lang::get('admin/admin.managerawprograms'), URL::to('admin/managerawprograms_index'));
+                            }
+                            if (Entrust::can('manage_campus')) {
+                                $aryadminfeatures[] = array(Lang::get('admin/admin.managecampus'), URL::to('admin/managecampus'));
+	                    	}
+                        }
                     ?>
                     <!--  end Prepare menu items -->
                     <ul class="nav navbar-nav pull-left">
@@ -99,20 +223,44 @@
 	    							<a class="dropdown-toggle" data-toggle="dropdown" href="#">
 	    								{{{ Lang::get('site.mainmenu') }}} <span class="caret"></span>
 	    							</a>
-	    							<ul class="dropdown-menu">	    								
+	    							<ul class="dropdown-menu">
 	    								@if (!empty($aryadminfeatures))
 	    									<li style="padding:3px 20px">{{ Lang::get('admin/admin.function_group_admin') }}</li>
 	    									<ul>
 	    									@foreach($aryadminfeatures as $menuitem)
 	    									<li><a href="{{ $menuitem[1] }}">{{ $menuitem[0] }}</a></li>
 	    									@endforeach
-                                                <li><a href="{{ URL::to('admin/edu_department') }}">XYXYXY</a></li>
 	    									</ul>
 	    								@endif
+                                            @if (!empty($aryapply))
+                                                <li style="padding:3px 20px">{{ Lang::get('admin/admin.function_group_add') }}</li>
+                                                <ul>
+                                                    @foreach($aryapply as $menuitem)
+                                                        <li><a href="{{ $menuitem[1] }}">{{ $menuitem[0] }}</a></li>
+                                                    @endforeach
+                                                </ul>
+                                            @endif
+                                            @if (!empty($aryapprove))
+                                                <li style="padding:3px 20px">{{ Lang::get('admin/admin.function_group_approve') }}</li>
+                                                <ul>
+                                                    @foreach($aryapprove as $menuitem)
+                                                        <li><a href="{{ $menuitem[1] }}">{{ $menuitem[0] }}</a></li>
+                                                    @endforeach
+                                                </ul>
+                                            @endif
+                                            @if (!empty($arymanagestudent))
+                                                <li style="padding:3px 20px">{{ Lang::get('admin/admin.function_group_student') }}</li>
+                                                <ul>
+                                                    @foreach($arymanagestudent as $menuitem)
+                                                        <li><a href="{{ $menuitem[1] }}">{{ $menuitem[0] }}</a></li>
+                                                    @endforeach
+                                                </ul>
+                                            @endif
+
 	    							</ul>
 	    					</li>
     					</ul>
-                                        
+
                 </div>
     			<div class="collapse navbar-collapse navbar-ex1-collapse">
     			<h4><br></h4>
@@ -155,19 +303,13 @@
 	<!-- ./ container -->
 
 	<!-- Javascripts -->
-    <script src="{{asset('assets/js/jquery.js')}}"></script>
-    <script src="{{asset('assets/js/jquery.min.js')}}"></script>
-    <script src="{{asset('assets/js/jquery.dataTables.js')}}"></script>
-    <script src="{{asset('assets/js/jquery.dataTables.min.js')}}"></script>
-    <script src="{{asset('assets/js/datatables.fnReloadAjax.js')}}"></script>
-    <script src="{{asset('/assets/js/dataTables.tableTools.js')}}"></script>
-
+    <script src="{{asset('/assets/js/jquery.min.js')}}"></script>
     <script src="{{asset('bootstrap/js/bootstrap.min.js')}}"></script>
     <script src="{{asset('assets/js/wysihtml5/wysihtml5-0.3.0.js')}}"></script>
     <script src="{{asset('assets/js/wysihtml5/bootstrap-wysihtml5.js')}}"></script>
-
+    <script src="{{asset('/assets/js/jquery.dataTables.min.js')}}"></script>
     <script src="{{asset('assets/js/datatables-bootstrap.js')}}"></script>
-
+    <script src="{{asset('assets/js/datatables.fnReloadAjax.js')}}"></script>
     <script src="{{asset('assets/js/jquery.colorbox.js')}}"></script>
     <script src="{{asset('assets/js/prettify.js')}}"></script>
 

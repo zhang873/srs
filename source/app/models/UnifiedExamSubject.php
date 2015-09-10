@@ -7,23 +7,17 @@
  * @license   http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 
-class Stuinfo extends Eloquent
+class UnifiedSubject extends Eloquent
 {
-    protected $table = 'stuinfo';
-    public function Selection()
-    {
-        return $this->hasMany("App\Selection");
-    }
+    protected $table = 'unified_exam_subject';
+    
     private $rules = array (
-        'student_id' => 'required|num',
-        'student_name' => 'required|alpha',
-        'major' => 'required',
-        'campus' => 'required',
-        'classification ' => 'required'
+        'subject' => 'required',
+        'code' => 'required|numeric:5',
     );
-
+    
     private $errors;
-
+    
     public function validate($data)
     {
         // make a new validator object
