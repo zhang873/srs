@@ -29,8 +29,11 @@ class CreateGroups extends Migration {
                 $table->string('exam_point',255)->nullable();//new
                 $table->tinyInteger('is_deleted')->nullable();//new
                 
-                $table->foreign('campus_id')->references('id')->on('campuses')->onDelete('cascade');
-                $table->foreign('school_id')->references('sysid')->on('groups')->onDelete('cascade');
+                $table->unsigned('campus_id');//new
+                $table->integer('school_id');//new
+                
+                $table->foreign('campus_id')->references('id')->on('campuses');
+                $table->foreign('school_id')->references('school_id')->on('school_info');
                  
                 
             });
