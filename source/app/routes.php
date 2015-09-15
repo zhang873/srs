@@ -208,8 +208,27 @@ Route::group(array('prefix' => 'admin', 'before' => 'auth'), function()
     Route::get('admissions/information_count_data', 'AdminAdmissionController@getInformationCountData');
     Route::get('admissions/information_classification_count', 'AdminAdmissionController@getInformationClassificationCount');
     Route::get('admissions/information_classification_count_data', 'AdminAdmissionController@getInformationClassificationCountData');
+    Route::get('admissions/to_check_number', 'AdminAdmissionController@getToCheckNumber');
+    Route::post('admissions/upload_photos', 'AdminAdmissionController@postUploadPhotos');
+    Route::get('admissions/check_photos', 'AdminAdmissionController@getCheckPhotos');
+    Route::get('admissions/result_details', 'AdminAdmissionController@getResultDetails');
+    Route::post('admissions/result_details', 'AdminAdmissionController@postResultDetails');
+    Route::get('admissions/download_photos', 'AdminAdmissionController@getDownloadPhotos');
 
-	# Admin Dashboard
+    Route::get('admissions/campus_student_info', 'AdminAdmissionController@getCampusStudentInfo');
+    Route::get('admissions/campus_student_info_data', 'AdminAdmissionController@getCampusStudentInfoData');
+    Route::get('admissions/campus_basic_student_info', 'AdminAdmissionController@getCampusBasicStudentInfo');
+    Route::get('admissions/campus_basic_student_info_data', 'AdminAdmissionController@getCampusBasicStudentInfoData');
+    Route::get('admissions/campus_reward_punish_info', 'AdminAdmissionController@getCampusRewardPunishInfo');
+    Route::get('admissions/campus_reward_punish_info_data', 'AdminAdmissionController@getCampusRewardPunishInfoData');
+    Route::get('admissions/campus_status_changing_info', 'AdminAdmissionController@getCampusStatusChangingInfo');
+    Route::get('admissions/campus_status_changing_info_data', 'AdminAdmissionController@getCampusStatusChangingInfoData');
+    Route::get('admissions/campus_information_classification_count', 'AdminAdmissionController@getCampusInformationClassificationCount');
+    Route::get('admissions/campus_information_classification_count_data', 'AdminAdmissionController@getCampusInformationClassificationCountData');
+
+    Route::get('admissions/photo_link', 'AdminAdmissionController@getPhotoLink');
+
+    # Admin Dashboard
 	Route::controller('/', 'AdminDashboardController');
 
 

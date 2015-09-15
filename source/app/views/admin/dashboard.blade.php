@@ -87,13 +87,14 @@
 <a href="{{{ URL::to('admin/admissions/teaching_plan_count') }}}"> {{{ Lang::get('admin/admissions/title.admissions_teaching_plan_count') }}}</a>&nbsp;
 <a href="{{{ URL::to('admin/admissions/information_count') }}}"> {{{ Lang::get('admin/admissions/title.admissions_information_count') }}}</a>&nbsp;
 <a href="{{{ URL::to('admin/admissions/information_classification_count') }}}"> {{{ Lang::get('admin/admissions/title.admissions_information_classification_count') }}}</a>&nbsp;
+<a href="{{{ URL::to('admin/admissions/photo_link') }}}"> {{{ Lang::get('admin/admissions/title.photo_link') }}}</a>&nbsp;
 <br><br>
 教学点<br>
-<a href="{{{ URL::to('admin/admissions/student_info') }}}"> {{{ Lang::get('admin/admissions/title.admissions_information_query') }}}</a>&nbsp;
-<a href="{{{ URL::to('admin/admissions/basic_student_info') }}}"> {{{ Lang::get('admin/admissions/title.basic_student_info') }}}</a>&nbsp;
-<a href="{{{ URL::to('admin/admissions/reward_punish_info') }}}"> {{{ Lang::get('admin/admissions/title.admissions_reward_punish') }}}</a>&nbsp;
-<a href="{{{ URL::to('admin/admissions/status_changing_info') }}}"> {{{ Lang::get('admin/admissions/title.admissions_status_changing') }}}</a>&nbsp;
-<a href="{{{ URL::to('admin/admissions/information_classification_count') }}}"> {{{ Lang::get('admin/admissions/title.admissions_information_classification_count') }}}</a>&nbsp;
+<a href="{{{ URL::to('admin/admissions/campus_student_info') }}}"> {{{ Lang::get('admin/admissions/title.admissions_information_query') }}}</a>&nbsp;
+<a href="{{{ URL::to('admin/admissions/campus_basic_student_info') }}}"> {{{ Lang::get('admin/admissions/title.basic_student_info') }}}</a>&nbsp;
+<a href="{{{ URL::to('admin/admissions/campus_reward_punish_info') }}}"> {{{ Lang::get('admin/admissions/title.admissions_reward_punish') }}}</a>&nbsp;
+<a href="{{{ URL::to('admin/admissions/campus_status_changing_info') }}}"> {{{ Lang::get('admin/admissions/title.admissions_status_changing') }}}</a>&nbsp;
+<a href="{{{ URL::to('admin/admissions/campus_information_classification_count') }}}"> {{{ Lang::get('admin/admissions/title.admissions_information_classification_count') }}}</a>&nbsp;
 
 @stop
 

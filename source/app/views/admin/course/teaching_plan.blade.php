@@ -191,8 +191,8 @@
                         fields.forEach(function (e) {
                             d[e.name].push(e.value);
                         });
-                        d["teaching_plan_code"]= $('#teaching_plan_code').val();
-                        d["year"]=$('#year').val();
+                        d["teaching_plan_code"] = $.trim($('#teaching_plan_code').val());
+                        d["year"]=$.trim($('#year').val());
                         d["semester"]= $('#semester').val();
                         d["major"]=$('#major').val();
                         d["major_classification"]=$('#major_classification').val();
@@ -208,6 +208,33 @@
                 "aaSorting": [ [0,'asc'] ]
             });
             $("#btnQuery").click(function(){
+                var ex = /^\d+$/;
+                var str = $.trim($('#year').val());
+                if (str != ''){
+                    if (!ex.test(str)) {
+                        alert("年度只接受数字");
+                        $("#year").focus();
+                        return false;
+                    }
+                    if (str.length > 4) {
+                        alert("年度长度超过4位");
+                        $("#year").focus();
+                        return false;
+                    }
+                }
+                str = $.trim($('#teaching_plan_code').val());
+                if (str != ''){
+                    if (!ex.test(str)) {
+                        alert("教学计划编号只接受数字");
+                        $("#teaching_plan_code").focus();
+                        return false;
+                    }
+                    if (str.length > 7) {
+                        alert("教学计划编号超过7位");
+                        $("#teaching_plan_code").focus();
+                        return false;
+                    }
+                }
                 $("#btnValue").val(2);
                 oTable.fnReloadAjax();
             });

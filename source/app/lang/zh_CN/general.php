@@ -7,10 +7,6 @@ return array (
 		'back' => '返回',
 		'cancel' => '取消',
 		'delete' => '刪除',
-        'pleaseselect' => '请选择',
-        'nopass'    => '不通过',
-        'pass'  => '通过',
-        'nocheck' => '未审核',
-        'ok' => '确认'
+        'pleaseselect' => '请选择'
 )
 ;

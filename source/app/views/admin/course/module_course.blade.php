@@ -56,9 +56,11 @@
 	</table>
 	<div align="center">
         <button id="btnSet" class="btn btn-small btn-info" >
-                        {{{ Lang::get('admin/course/title.module_set') }}}</button>
+            {{{ Lang::get('admin/course/title.module_set') }}}</button>
         <button id="btnUnset" class="btn btn-small btn-info" >
-                        {{{ Lang::get('admin/course/title.module_unset') }}}</button>
+            {{{ Lang::get('admin/course/title.module_unset') }}}</button>
+        <button id="btnDelete" class="btn btn-small btn-info" >
+            {{{ Lang::get('admin/course/title.module_course_delete') }}}</button>
 	</div>
     <div id="show">
         <input type="hidden" id="btnValue" value="2" />
@@ -82,7 +84,7 @@
 <script type="text/javascript">
     $(".iframe").colorbox({iframe:true, width:"80%", height:"80%"});
     $(".iframe_m").colorbox({iframe:true, width:"60%", height:"70%"});
-    $(".iframe_s").colorbox({iframe:true, width:"40%", height:"40%"});
+    $(".iframe_s").colorbox({iframe:true, width:"40%", height:"50%"});
     var oTable;
     var teachingPlanId = "<?php echo $id;?>";
     $(document).ready(function() {
@@ -123,6 +125,7 @@
             "aaSorting": [ [0,'asc'] ]
         });
 
+
         $("#btnQuery").click(function(){
             $("#btnValue").val(2);
             oTable.fnReloadAjax();
@@ -141,6 +144,14 @@
                 return false;
             }
             $("#btnValue").val(1);
+            oTable.fnReloadAjax();
+        });
+        $("#btnDelete").click(function(){
+            if ($('#modules :checked').length <= 0){
+                alert("请选择模块！");
+                return false;
+            }
+            $("#btnValue").val(3);
             oTable.fnReloadAjax();
         });
     });

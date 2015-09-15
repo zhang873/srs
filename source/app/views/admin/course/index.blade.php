@@ -55,16 +55,12 @@
     </div>
 
     <div class="form-group" align="center">
-        <div class="col-md-offset-2 col-md-10">
-
-            <button id="btnQuery" class="btn btn-small btn-info" >
-                {{{ Lang::get('admin/course/title.course_query') }}}</button>
-            <a href="{{{ URL::to('admin/course/data_add') }}}" class="btn btn-small btn-info iframe"><span class="glyphicon glyphicon-plus-sign"></span>
-                {{{ Lang::get('admin/course/title.course_add') }}}</a>
-            <a href="{{{ URL::to('admin/course/course/importExcel') }}}" id="iframe_s" class="btn btn-small btn-info">
-                {{{ Lang::get('admin/course/title.course_import') }}}</a>
-
-        </div>
+        <button id="btnQuery" class="btn btn-small btn-info" >
+            {{{ Lang::get('admin/course/title.course_query') }}}</button>
+        <a href="{{{ URL::to('admin/course/data_add') }}}" class="btn btn-small btn-info iframe"><span class="glyphicon glyphicon-plus-sign"></span>
+            {{{ Lang::get('admin/course/title.course_add') }}}</a>
+        <a href="{{{ URL::to('admin/course/course/importExcel') }}}" id="iframe_s" class="btn btn-small btn-info">
+            {{{ Lang::get('admin/course/title.course_import') }}}</a>
     </div>
     <br><br>
 
@@ -135,8 +131,46 @@
         str = "<?php $str = implode("|", $z_majors); echo $str;?>";
         var z_majors = str.split("|");
 		$(document).ready(function() {
-
+            $('#courses')
+                .on('xhr.dt', function ( e, settings, json, xhr ) {
+                    var type = $('#btnValue').val();
+                    if (type == 1)
+                        alert("启用成功！");
+                    else if (type == 0)
+                        alert("停用成功！");
+                } );
 			$("#btnQuery").click(function(){
+			    var ex = /^\d+$/;
+                var str = $.trim($('#code').val());
+                if (str != ''){
+                    if (!ex.test(str)) {
+                        alert("课程编号只接受数字");
+                        $("#code").focus();
+                        return false;
+                    }
+                    if (str.length > 5) {
+                        alert("课程编号超过5位");
+                        $("#code").focus();
+                        return false;
+                    }
+                }
+                ex = /^[\u4e00-\u9fa5\w()]+$/;
+                str = $.trim($('#name').val());
+                if (str != ''){
+                    if (!ex.test(str)) {
+                        alert("课程名字只能包括文字、数字、括号、下划线");
+                        $("#name").focus();
+                        return false;
+                    }
+                }
+                str = $.trim($('#abbreviation').val());
+                if (str != ''){
+                    if (!ex.test(str)) {
+                        alert("课程简称只能包括文字、数字、括号、下划线");
+                        $("#abbreviation").focus();
+                        return false;
+                    }
+                }
                 $("#btnValue").val(2);
                 if (oTable == null){
                     oTable = $('#courses').dataTable( {
@@ -169,13 +203,14 @@
                                         d["checkitem[]"].push(value.value);
                                     });
                                 }
-                                d["code"]= $('#code').val();
-                                d["name"]=$('#name').val();
-                                d["abbreviation"]= $('#abbreviation').val();
-                                d["major"]=$('#major').val();
+                                d["code"] = $.trim($('#code').val());
+                                d["name"] = $.trim($('#name').val());
+                                d["abbreviation"] = $.trim($('#abbreviation').val());
+                                d["major"] = $('#major').val();
                                 d["major_classification"]=$('#major_classification').val();
                                 d["state"]=$('#btnValue').val();
                             }
+
                         },
 
                         "aaSorting": [ [0,'asc'] ]

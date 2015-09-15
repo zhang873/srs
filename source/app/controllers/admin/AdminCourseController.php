@@ -123,7 +123,7 @@ class AdminCourseController extends AdminController {
         // Mode
         $mode = 'create';
 
-        $departs = EduDepartment::all();
+        $departs = EduDepartment::where('is_deleted', 0)->get();
 
         return View::make ( 'admin/course/define_edit', compact ('title', 'mode', 'departs') );
     }
@@ -179,9 +179,11 @@ class AdminCourseController extends AdminController {
         $url = 'admin/course/' . $type . '/importExcel';
         //检验一下上传的文件是否有效.
         $rst = 0;
+        $line = 0;
+        $text = '';
         if (!empty($file) && $file->isValid()) {
 
-            Excel::load($file, function ($reader) use ($type, &$rst) {
+            Excel::load($file, function ($reader) use ($type, &$rst, &$line, &$text) {
 
                 //获取excel的第几张表
                 $reader = $reader->getSheet(0);
@@ -191,11 +193,45 @@ class AdminCourseController extends AdminController {
                 for ($i = 0; $i < count($results); $i++) {
                     for ($j = 0; $j < count($results[$i]); $j++) {
                         if ($results[$i][$j] != "") {
-                            if (($type == "course" && $results[$i][$j] == Lang::get('admin/course/table.code'))
-                                || ($type == "teaching_plan" && $results[$i][$j] == Lang::get('admin/course/table.teaching_plan_code'))
-                                || ($type == "module" && $results[$i][$j] == Lang::get('admin/course/table.teaching_plan_code'))
-                            ) {
-                                $start = $i;
+                            if ($type == "course") {
+                                if ($results[$i][$j] == Lang::get('admin/course/table.code')
+                                    && $results[$i][$j + 1] == Lang::get('admin/course/table.name')
+                                    && $results[$i][$j + 2] == Lang::get('admin/course/table.abbreviation')
+                                    && $results[$i][$j + 3] == Lang::get('admin/course/title.classification')
+                                    && $results[$i][$j + 4] == Lang::get('admin/course/table.credit')
+                                    && $results[$i][$j + 5] == Lang::get('admin/course/table.is_practice')
+                                    && $results[$i][$j + 6] == Lang::get('admin/course/table.lecturer')
+                                    && $results[$i][$j + 7] == Lang::get('admin/course/table.is_certification')
+                                    && $results[$i][$j + 8] == Lang::get('admin/course/table.define_date')
+                                    && $results[$i][$j + 9] == Lang::get('admin/course/table.remark')
+                                    && $results[$i][$j + 10] == Lang::get('admin/course/title.manage')
+                                    && $results[$i][$j + 11] == Lang::get('admin/course/table.state')
+                                ) {
+                                    $start = $i;
+                                }
+                            } else if ($type == "teaching_plan") {
+                                if ($results[$i][$j] == Lang::get('admin/course/table.teaching_plan_code')
+                                    && $results[$i][$j + 1] == Lang::get('admin/course/table.student_classification')
+                                    && $results[$i][$j + 2] == Lang::get('admin/course/title.classification')
+                                    && $results[$i][$j + 3] == Lang::get('admin/course/title.major')
+                                    && $results[$i][$j + 4] == Lang::get('admin/course/table.min_credit_graduation')
+                                    && $results[$i][$j + 5] == Lang::get('admin/course/table.schooling_period')
+                                    && $results[$i][$j + 6] == Lang::get('admin/course/table.max_credit_exemption')
+                                    && $results[$i][$j + 7] == Lang::get('admin/course/table.max_credit_semester')
+                                    && $results[$i][$j + 8] == Lang::get('admin/course/table.is_activated')
+                                ) {
+                                    $start = $i;
+                                }
+                            } else if ($type == "module") {
+                                if ($results[$i][$j] == Lang::get('admin/course/table.teaching_plan_code')
+                                    && $results[$i][$j + 1] == Lang::get('admin/course/table.module_code')
+                                    && $results[$i][$j + 2] == Lang::get('admin/course/table.code')
+                                    && $results[$i][$j + 3] == Lang::get('admin/course/table.is_obligatory')
+                                    && $results[$i][$j + 4] == Lang::get('admin/course/table.suggested_semester')
+                                    && $results[$i][$j + 5] == Lang::get('admin/course/table.is_masked')
+                                ) {
+                                    $start = $i;
+                                }
                             }
                             break 2;
                         }
@@ -203,46 +239,141 @@ class AdminCourseController extends AdminController {
                 }
 
                 if ($start != -1) {
-
                     $idx_ary = ($results[$start]);
                     foreach ($idx_ary as $k => $v) {
                         if (empty($v))
                             unset($idx_ary[$k]);
                     }
                     $idx_ary = array_flip($idx_ary);
-
+                    $pattern = '';
+                    $teaching_plan_codes = array();
+                    $module_sysids = array();
+                    $module_courses = array();
                     for ($i = $start + 1; $i < count($results); $i++) {
+                        $line = $i - $start;
                         if (empty($results[$i][$j]))
                             continue;
                         if ($type == "course") {
                             $course_code = $results[$i][$idx_ary[Lang::get('admin/course/table.code')]];
+                            $pattern = '/^[1-9]\d{4}$/';
+                            if (preg_match($pattern, $course_code) == 0) {
+                                $rst = 10;
+                                $text = $course_code;
+                                return;
+                            }
                             $course = Course::where('code', $course_code)->first();
                             if (is_null($course)) {
                                 $course = new Course();
                                 $course->code = $results[$i][$idx_ary[Lang::get('admin/course/table.code')]];
                             }
                             $department_code = $results[$i][$idx_ary[Lang::get('admin/course/title.manage')]];
-                            $department = EduDepartment::where('code', $department_code)->first();
-                            $course->name = $results[$i][$idx_ary[Lang::get('admin/course/table.name')]];
-                            $course->abbreviation = $results[$i][$idx_ary[Lang::get('admin/course/table.abbreviation')]];
-                            $course->credit = $results[$i][$idx_ary[Lang::get('admin/course/table.credit')]];
-                            $course->credit_hour = $course->credit * 36;
-                            $course->is_practice = $results[$i][$idx_ary[Lang::get('admin/course/table.is_practice')]];
-                            $course->lecturer = $results[$i][$idx_ary[Lang::get('admin/course/table.lecturer')]];
-                            $course->is_certification = $results[$i][$idx_ary[Lang::get('admin/course/table.is_certification')]];
-                            $course->define_date = $results[$i][$idx_ary[Lang::get('admin/course/table.define_date')]];
-                            $course->remark = $results[$i][$idx_ary[Lang::get('admin/course/table.remark')]];
-                            if (is_null($department)){
-                                $rst = 5;
+                            $pattern = '/^\d{5}$/';
+                            if (preg_match($pattern, $department_code) == 0) {
+                                $rst = 11;
+                                $text = $department_code;
                                 return;
                             }
-                            else
+                            $department = EduDepartment::where('code', $department_code)->first();
+                            $course->name = $results[$i][$idx_ary[Lang::get('admin/course/table.name')]];
+                            $pattern = '/^[\x{4e00}-\x{9fa5}\w()]+$/u';
+                            if (preg_match($pattern, $course->name) == 0) {
+                                $rst = 12;
+                                $text = $course->name;
+                                return;
+                            }
+                            $course->abbreviation = $results[$i][$idx_ary[Lang::get('admin/course/table.abbreviation')]];
+                            $pattern = '/^[\x{4e00}-\x{9fa5}\w()]+$/u';
+                            if (preg_match($pattern, $course->abbreviation) == 0) {
+                                $rst = 13;
+                                $text = $course->abbreviation;
+                                return;
+                            }
+                            $course->credit = $results[$i][$idx_ary[Lang::get('admin/course/table.credit')]];
+                            $pattern = '/^[1-9]$/';
+                            if (preg_match($pattern, $course->credit) == 0) {
+                                $rst = 14;
+                                $text = $course->credit;
+                                return;
+                            }
+                            $course->credit_hour = $course->credit * 36;
+                            $is_practice = $results[$i][$idx_ary[Lang::get('admin/course/table.is_practice')]];
+                            if ($is_practice === "有") {
+                                $course->is_practice = 1;
+                            } elseif ($is_practice === "无") {
+                                $course->is_practice = 0;
+                            } else {
+                                $rst = 15;
+                                $text = $is_practice;
+                                return;
+                            }
+                            $course->lecturer = $results[$i][$idx_ary[Lang::get('admin/course/table.lecturer')]];
+                            $pattern = '/^[\x{4e00}-\x{9fa5}]+$/u';
+                            if (preg_match($pattern, $course->lecturer) == 0) {
+                                $rst = 16;
+                                $text = $course->lecturer;
+                                return;
+                            }
+                            $is_certification = $results[$i][$idx_ary[Lang::get('admin/course/table.is_certification')]];
+                            if ($is_certification === "有") {
+                                $course->is_certification = 1;
+                            } elseif ($is_certification === "无") {
+                                $course->is_certification = 0;
+                            } else {
+                                $rst = 17;
+                                $text = $is_certification;
+                                return;
+                            }
+
+                            $course->define_date = $results[$i][$idx_ary[Lang::get('admin/course/table.define_date')]];
+                            $pattern = '/^(?:(?!0000)[0-9]{4}-(?:(?:0[1-9]|1[0-2])-(?:0[1-9]|1[0-9]|2[0-8])|(?:0[13-9]|1[0-2])-(?:29|30)|(?:0[13578]|1[02])-31)|(?:[0-9]{2}(?:0[48]|[2468][048]|[13579][26])|(?:0[48]|[2468][048]|[13579][26])00)-02-29)$/';
+                            if (preg_match($pattern, $course->define_date) == 0) {
+                                $rst = 18;
+                                $text = $course->define_date;
+                                return;
+                            }
+                            $course->remark = $results[$i][$idx_ary[Lang::get('admin/course/table.remark')]];
+                            if (!empty($course->remark)) {
+                                $pattern = '/^[\x{4e00}-\x{9fa5}]+$/u';
+                                if (preg_match($pattern, $course->remark) == 0) {
+                                    $rst = 19;
+                                    $text = $course->remark;
+                                    return;
+                                }
+                            }
+                            if (is_null($department)) {
+                                $rst = 5;
+                                $text = $department_code;
+                                return;
+                            } else
                                 $course->department_id = $department->id;
-                            $course->classification = $results[$i][$idx_ary[Lang::get('admin/course/title.classification')]];
-                            $course->state = $results[$i][$idx_ary[Lang::get('admin/course/table.state')]];
+                            $classification = $results[$i][$idx_ary[Lang::get('admin/course/title.classification')]];
+                            if ($classification === "本科") {
+                                $course->classification = 12;
+                            } elseif ($classification === "专科") {
+                                $course->classification = 14;
+                            } else {
+                                $rst = 20;
+                                $text = $classification;
+                                return;
+                            }
+                            $state = $results[$i][$idx_ary[Lang::get('admin/course/table.state')]];
+                            if ($state === "启用") {
+                                $course->state = 1;
+                            } elseif ($state === "停用") {
+                                $course->state = 0;
+                            } else {
+                                $rst = 21;
+                                $text = $state;
+                                return;
+                            }
                             $course->save();
                         } elseif ($type == "teaching_plan") {
                             $teaching_plan_code = $results[$i][$idx_ary[Lang::get('admin/course/table.teaching_plan_code')]];
+                            $pattern = '/^[1-9]\d{6}$/';
+                            if (preg_match($pattern, $teaching_plan_code) == 0) {
+                                $rst = 22;
+                                return;
+                            }
                             $teachingPlan = TeachingPlan::where('code', $teaching_plan_code)->first();
                             if (is_null($teachingPlan)) {
                                 $teachingPlan = new TeachingPlan();
@@ -252,14 +383,59 @@ class AdminCourseController extends AdminController {
                                     ->where('teaching_plan_id', $teachingPlan->id)
                                     ->update(array('is_deleted' => 1));
                             }
-                            $teachingPlan->student_classification = $results[$i][$idx_ary[Lang::get('admin/course/table.student_classification')]];
-                            $teachingPlan->major_classification = $results[$i][$idx_ary[Lang::get('admin/course/title.classification')]];
+
+                            $student_classification = $results[$i][$idx_ary[Lang::get('admin/course/table.student_classification')]];
+                            if ($student_classification === "本科") {
+                                $teachingPlan->student_classification = 12;
+                            } elseif ($student_classification === "专科") {
+                                $teachingPlan->student_classification = 14;
+                            } else {
+                                $rst = 23;
+                                return;
+                            }
+
+                            $major_classification = $results[$i][$idx_ary[Lang::get('admin/course/title.classification')]];
+                            if ($major_classification === "本科") {
+                                $teachingPlan->major_classification = 12;
+                            } elseif ($major_classification === "专科") {
+                                $teachingPlan->major_classification = 14;
+                            } else {
+                                $rst = 24;
+                                return;
+                            }
                             $teachingPlan->major = $results[$i][$idx_ary[Lang::get('admin/course/title.major')]];
                             $teachingPlan->min_credit_graduation = $results[$i][$idx_ary[Lang::get('admin/course/table.min_credit_graduation')]];
+                            $pattern = '/^\d+(\.\d+)?$/';
+                            if (preg_match($pattern, $teachingPlan->min_credit_graduation) == 0) {
+                                $rst = 25;
+                                return;
+                            }
                             $teachingPlan->schooling_period = $results[$i][$idx_ary[Lang::get('admin/course/table.schooling_period')]];
+                            if (preg_match($pattern, $teachingPlan->schooling_period) == 0) {
+                                $rst = 26;
+                                return;
+                            }
                             $teachingPlan->max_credit_exemption = $results[$i][$idx_ary[Lang::get('admin/course/table.max_credit_exemption')]];
+                            $pattern = '/^[1-9]\d*$/';
+                            if (preg_match($pattern, $teachingPlan->max_credit_exemption) == 0) {
+                                $rst = 27;
+                                return;
+                            }
                             $teachingPlan->max_credit_semester = $results[$i][$idx_ary[Lang::get('admin/course/table.max_credit_semester')]];
-                            $teachingPlan->is_activated = $results[$i][$idx_ary[Lang::get('admin/course/table.is_activated')]];
+                            if (preg_match($pattern, $teachingPlan->max_credit_semester) == 0) {
+                                $rst = 28;
+                                return;
+                            }
+                            $is_activated = $results[$i][$idx_ary[Lang::get('admin/course/table.is_activated')]];
+                            if ($is_activated === "启") {
+                                $teachingPlan->is_activated = 1;
+                            } elseif ($is_activated === "关") {
+                                $teachingPlan->is_activated = 0;
+                            } else {
+                                $rst = 29;
+                                return;
+                            }
+
                             if ($teachingPlan->is_activated == 1) {
                                 $curInfo = ModuleCurrent::where('module_id', 2)->first();
                                 if (!empty($curInfo)) {
@@ -274,9 +450,30 @@ class AdminCourseController extends AdminController {
                             $min_credits = array();
                             $start_idx = $idx_ary[Lang::get('admin/course/table.teaching_plan_code')] + 9;
                             for ($k = $start_idx; $k < count($results[$i]); $k += 3) {
+                                if (empty($results[$i][$k]))
+                                    continue;
+                                if (in_array($results[$i][$k], $module_codes)) {
+                                    $rst = 33;
+                                    return;
+                                }
+
+                                $pattern = '/^\d{5}$/';
+                                if (preg_match($pattern, $results[$i][$k]) == 0) {
+                                    $rst = 30;
+                                    return;
+                                }
                                 $module_codes[] = $results[$i][$k];
                                 $credits[] = $results[$i][$k + 1];
+                                $pattern = '/^[1-9]\d*$/';
+                                if (preg_match($pattern, $results[$i][$k + 1]) == 0) {
+                                    $rst = 31;
+                                    return;
+                                }
                                 $min_credits[] = $results[$i][$k + 2];
+                                if (preg_match($pattern, $results[$i][$k + 2]) == 0) {
+                                    $rst = 32;
+                                    return;
+                                }
                             }
                             $cnt = count($module_codes);
                             for ($l = 0; $l < $cnt; $l++) {
@@ -293,23 +490,51 @@ class AdminCourseController extends AdminController {
                                     $teachingPlanModule->min_credit = $min_credits[$l];
                                     $teachingPlanModule->is_deleted = 0;
                                     $teachingPlanModule->save();
+                                } else {
+                                    $rst = 2;
+                                    return;
                                 }
                             }
                         } elseif ($type == "module") {
-
                             $teaching_plan_code = $results[$i][$idx_ary[Lang::get('admin/course/table.teaching_plan_code')]];
+                            $pattern = '/^[1-9]\d{6}$/';
+                            if (preg_match($pattern, $teaching_plan_code) == 0) {
+                                $rst = 22;
+                                return;
+                            }
                             $teaching_plan = TeachingPlan::where('code', $teaching_plan_code)->first();
                             if (is_null($teaching_plan)) {
                                 $rst = 1;
                                 return;
                             }
+                            $teaching_plan_codes[] = $teaching_plan_code;
+
                             $module_code = $results[$i][$idx_ary[Lang::get('admin/course/table.module_code')]];
+                            $pattern = '/^\d{5}$/';
+                            if (preg_match($pattern, $module_code) == 0) {
+                                $rst = 30;
+                                return;
+                            }
                             $module_info = MajorModuleInfo::where('code', $module_code)->first();
                             if (is_null($module_info)) {
                                 $rst = 2;
                                 return;
                             }
+                            $module_sysids[] = $module_code;
                             $course_code = $results[$i][$idx_ary[Lang::get('admin/course/table.code')]];
+                            $pattern = '/^[1-9]\d{4}$/';
+                            if (preg_match($pattern, $course_code) == 0) {
+                                $rst = 10;
+                                $text = $course_code;
+                                return;
+                            }
+                            if (in_array($teaching_plan_code, $teaching_plan_codes)
+                                && in_array($module_code, $module_sysids)
+                                && in_array($course_code, $module_courses)) {
+                                $rst = 34;
+                                return;
+                            }
+                            $module_courses[] = $course_code;
                             $course = Course::where('code', $course_code)->first();
                             if (is_null($course)) {
                                 $rst = 3;
@@ -325,40 +550,71 @@ class AdminCourseController extends AdminController {
                                 $rst = 4;
                                 return;
                             }
-                            $module_course = ModuleCourse::where('teaching_plan_module_id', $teaching_plan_module->id)
+                            $teaching_plan_module_ids = TeachingPlanModule::where('teaching_plan_id', $teaching_plan_id)
+                                ->where('is_deleted', 0)->select('id')->lists('id');
+
+                            $module_course = ModuleCourse::whereIn('teaching_plan_module_id', $teaching_plan_module_ids)
                                 ->where('course_id', $course_id)
                                 ->first();
-
                             if (is_null($module_course)) {
                                 $module_course = new ModuleCourse();
-                                $module_course->teaching_plan_module_id = $teaching_plan_module->id;
                                 $module_course->course_id = $course_id;
                             }
+                            $module_course->teaching_plan_module_id = $teaching_plan_module->id;
                             $is_obligatory = $results[$i][$idx_ary[Lang::get('admin/course/table.is_obligatory')]];
-                            $is_obligatory = ($is_obligatory == '必修' ? 1 : 0);
-                            $module_course->is_obligatory = $is_obligatory;
+                            if ($is_obligatory === "必修") {
+                                $module_course->is_obligatory = 1;
+                            } elseif ($is_obligatory === "选修") {
+                                $module_course->is_obligatory = 0;
+                            } else {
+                                $rst = 35;
+                                return;
+                            }
                             $module_course->suggested_semester = $results[$i][$idx_ary[Lang::get('admin/course/table.suggested_semester')]];
-                            $module_course->is_masked = $results[$i][$idx_ary[Lang::get('admin/course/table.is_masked')]];
+                            $pattern = '/^[1-9]\d*$/';
+                            if (preg_match($pattern, $module_course->suggested_semester) == 0) {
+                                $rst = 36;
+                                return;
+                            }
+                            $is_masked = $results[$i][$idx_ary[Lang::get('admin/course/table.is_masked')]];
+                            if ($is_masked === "是") {
+                                $module_course->is_masked = 1;
+                            } elseif ($is_masked === "否") {
+                                $module_course->is_masked = 0;
+                            } else {
+                                $rst = 37;
+                                return;
+                            }
                             $module_course->is_deleted = 0;
                             $module_course->save();
                         }
                     }
+                } else {
+                    $rst = -1;
                 }
+
             });
         }
+
+        $front = "表格第" . $line . "行";
         switch ($rst) {
+            case -1:
+                return Redirect::to($url)->withErrors(Lang::get('admin/course/title.table_format_error'));
             case 0:
                 return Redirect::to($url)->with('success', Lang::get('admin/course/messages.import_success'));
             case 1:
-                return Redirect::to($url)->withErrors(Lang::get('admin/course/title.teaching_plan_code_not_exist'));
+                return Redirect::to($url)->withErrors($front . Lang::get('admin/course/title.teaching_plan_code_not_exist'));
             case 2:
-                return Redirect::to($url)->withErrors(Lang::get('admin/course/title.module_code_not_exist'));
+                return Redirect::to($url)->withErrors($front . Lang::get('admin/course/title.module_code_not_exist'));
             case 3:
-                return Redirect::to($url)->withErrors(Lang::get('admin/course/title.course_code_not_exist'));
+                return Redirect::to($url)->withErrors($front . Lang::get('admin/course/title.course_code_not_exist'));
             case 4:
-                return Redirect::to($url)->withErrors(Lang::get('admin/course/title.teaching_plan_module_not_exist'));
+                return Redirect::to($url)->withErrors($front . Lang::get('admin/course/title.teaching_plan_module_not_exist'));
             case 5:
-                return Redirect::to($url)->withErrors(Lang::get('admin/course/title.department_code_not_exist'));
+                return Redirect::to($url)->withErrors($front . Lang::get('admin/course/title.department_code_not_exist'));
+            default:
+                return Redirect::to($url)->withErrors($front . Lang::get('admin/course/messages.excel_error.' . $rst));
+
         }
     }
 
@@ -404,7 +660,7 @@ class AdminCourseController extends AdminController {
         if (!empty($year)) {
             $query = $query->where('year', 'like', '%'.$year.'%');
         }
-        if (!empty($semester)) {
+        if (!is_null($semester) && $semester != "全部") {
             $query = $query->where('semester', $semester);
         }
         $establish_ids = $query->lists('course_id');
@@ -413,10 +669,10 @@ class AdminCourseController extends AdminController {
         if (!empty($year)) {
             $query = $query->where('year', 'like', '%'.$year.'%');
         }
-        if (!empty($semester)) {
+        if (!is_null($semester) && $semester != "全部") {
             $query = $query->where('semester', $semester);
         }
-        if (!empty($major) && $major != "全部") {
+        if (!is_null($major) && $major != "全部") {
             $query = $query->where('major', $major);
         }
         if (!is_null($major_classification) && $major_classification != "全部") {
@@ -435,11 +691,11 @@ class AdminCourseController extends AdminController {
             })
             ->whereIn('teaching_plan_id', $teaching_plan_ids)
             ->whereNotIn('course_id', $establish_ids)
-            ->leftjoin('teaching_plan', function ($join) {
+            ->join('teaching_plan', function ($join) {
                 $join->on('teaching_plan_module.teaching_plan_id', '=', 'teaching_plan.id')
                     ->where('teaching_plan.is_deleted', '=', 0);
             })
-            ->leftjoin('course', function ($join) {
+            ->join('course', function ($join) {
                 $join->on('module_course.course_id', '=', 'course.id')
                     ->where('course.is_deleted', '=', 0);
             })
@@ -491,17 +747,28 @@ class AdminCourseController extends AdminController {
 
         if ($type == 1) {
             if (!empty($ids)) {
-                DB::table('course_establish_province')
-                    ->where('year', 'like', '%' . $year . '%')
-                    ->where('semester', $semester)
-                    ->whereIn('course_id', $ids)
-                    ->update(array('is_deleted' => 1));
-                DB::table('course_establish_campus')
-                    ->where('year', 'like', '%' . $year . '%')
-                    ->where('semester', $semester)
-                    ->whereIn('course_id', $ids)
-                    ->update(array('is_deleted' => 1));
-
+                if (!is_null($semester) && $semester != "全部") {
+                    DB::table('course_establish_province')
+                        ->where('year', 'like', '%' . $year . '%')
+                        ->where('semester', $semester)
+                        ->whereIn('course_id', $ids)
+                        ->update(array('is_deleted' => 1));
+                    DB::table('course_establish_campus')
+                        ->where('year', 'like', '%' . $year . '%')
+                        ->where('semester', $semester)
+                        ->whereIn('course_id', $ids)
+                        ->update(array('is_deleted' => 1));
+                }
+                else{
+                    DB::table('course_establish_province')
+                        ->where('year', 'like', '%' . $year . '%')
+                        ->whereIn('course_id', $ids)
+                        ->update(array('is_deleted' => 1));
+                    DB::table('course_establish_campus')
+                        ->where('year', 'like', '%' . $year . '%')
+                        ->whereIn('course_id', $ids)
+                        ->update(array('is_deleted' => 1));
+                }
             }
         }
 
@@ -513,19 +780,19 @@ class AdminCourseController extends AdminController {
             $qry_campus_ids = $qry_campus_ids->where('year', 'like', '%' . $year . '%');
             $qry_teaching_plan = $qry_teaching_plan->where('year', 'like', '%' . $year . '%');
         }
-        if (!empty($semester)) {
+        if (!is_null($semester) && $semester != "全部") {
             $qry_province_ids = $qry_province_ids->where('semester', $semester);
             $qry_campus_ids = $qry_campus_ids->where('semester', $semester);
             $qry_teaching_plan = $qry_teaching_plan->where('semester', $semester);
         }
 
-        if (!empty($major) && $major != "全部") {
+        if (!is_null($major) && $major != "全部") {
             $qry_teaching_plan = $qry_teaching_plan->where('major', $major);
         }
-        if (!is_null($major_classification) && $major_classification != 2) {
+        if (!is_null($major_classification) && $major_classification != "全部") {
             $qry_teaching_plan = $qry_teaching_plan->where('major_classification', $major_classification);
         }
-        if (!is_null($student_classification) && $student_classification != 2) {
+        if (!is_null($student_classification) && $student_classification != "全部") {
             $qry_teaching_plan = $qry_teaching_plan->where('student_classification', $student_classification);
         }
         $province_ids = $qry_province_ids->lists('course_id');
@@ -670,8 +937,7 @@ class AdminCourseController extends AdminController {
             $qryProvince = $qryProvince->where('year', 'like', '%' . $year . '%');
             $qrySchool = $qrySchool->where('year', 'like', '%' . $year . '%');
         }
-        if (!empty($semester)) {
-
+        if (!is_null($semester) && $semester != "全部") {
             $qryProvince = $qryProvince->where('semester', $semester);
             $qrySchool = $qrySchool->where('semester', $semester);
         }
@@ -682,10 +948,10 @@ class AdminCourseController extends AdminController {
         if (!empty($year)) {
             $query = $query->where('year', 'like', '%' . $year . '%');
         }
-        if (!empty($semester)) {
+        if (!is_null($semester) && $semester != "全部") {
             $query = $query->where('semester', $semester);
         }
-        if (!empty($major) && $major != "全部") {
+        if (!is_null($major) && $major != "全部") {
             $query = $query->where('major', $major);
         }
         if (!is_null($major_classification) && $major_classification != "全部") {
@@ -770,12 +1036,21 @@ class AdminCourseController extends AdminController {
 
         if ($type == 1) {
             if (!empty($ids)) {
-                DB::table('course_establish_campus')
-                    ->where('year', 'like', '%' . $year . '%')
-                    ->where('semester', $semester)
-                    ->where('campus_id', $campus_id)
-                    ->whereIn('course_id', $ids)
-                    ->update(array('is_deleted' => 1));
+                if (!is_null($semester) && $semester != "全部") {
+                    DB::table('course_establish_campus')
+                        ->where('year', 'like', '%' . $year . '%')
+                        ->where('semester', $semester)
+                        ->where('campus_id', $campus_id)
+                        ->whereIn('course_id', $ids)
+                        ->update(array('is_deleted' => 1));
+                }
+                else {
+                    DB::table('course_establish_campus')
+                        ->where('year', 'like', '%' . $year . '%')
+                        ->where('campus_id', $campus_id)
+                        ->whereIn('course_id', $ids)
+                        ->update(array('is_deleted' => 1));
+                }
             }
         }
 
@@ -787,12 +1062,11 @@ class AdminCourseController extends AdminController {
             $qry_school_ids = $qry_school_ids->where('year', 'like', '%' . $year . '%');
             $qry_program = $qry_program->where('year', 'like', '%' . $year . '%');
         }
-        if (!empty($semester)) {
-
+        if (!is_null($semester) && $semester != "全部") {
             $qry_school_ids = $qry_school_ids->where('semester', $semester);
             $qry_program = $qry_program->where('semester', $semester);
         }
-        if (!empty($major) && $major != "全部") {
+        if (!is_null($major) && $major != "全部") {
             $qry_program = $qry_program->where('major', $major);
         }
         if (!is_null($major_classification) && $major_classification != "全部") {
@@ -1032,7 +1306,7 @@ class AdminCourseController extends AdminController {
         $title = Lang::get ( 'admin/course/title.teaching_plan_add' );
         $b_majors = RawProgram::where('type', '12')->lists('name');
         $z_majors = RawProgram::where('type', '14')->lists('name');
-        $modules = MajorModuleInfo::all();
+        $modules = MajorModuleInfo::where('is_deleted', 0)->get();
         $credits = Input::old('credit', array());
         $min_credits = Input::old('min_credit_module', array());
         // Show the page
@@ -1087,7 +1361,7 @@ class AdminCourseController extends AdminController {
                 }
             }
         } else {
-            return Redirect::to('admin/course/teaching_plan_add')->withInput()->withErrors($program->errors());
+            return Redirect::to('admin/course/teaching_plan_add')->withInput()->withErrors($teachingPlan->errors());
         }
         return Redirect::to('admin/course/teaching_plan_add')->withInput()->with('success', Lang::get('admin/course/messages.create.teaching_plan_success'));
     }
@@ -1159,6 +1433,13 @@ class AdminCourseController extends AdminController {
                     ->update(array('is_masked' => $type));
             }
         }
+        if ($type == 3) {
+            if (!empty($ids)) {
+                DB::table('module_course')
+                    ->whereIn('id', $ids)
+                    ->update(array('is_deleted' => 1));
+            }
+        }
 
         $query = DB::table('teaching_plan_module')->where('teaching_plan_id', $teaching_plan_id)
             ->where('teaching_plan_module.is_deleted', 0)
@@ -1180,7 +1461,18 @@ class AdminCourseController extends AdminController {
 
         return Datatables::of ( $query )
             ->edit_column ( 'is_obligatory', '@if($is_obligatory == \'1\')必修@elseif($is_obligatory == \'0\')选修@endif')
-            ->edit_column ( 'is_masked', '@if($is_masked == \'1\')是@elseif($is_masked == \'0\')否@endif')
+            //->edit_column ( 'is_masked', '@if($is_masked == \'1\')是@elseif($is_masked == \'0\')否@endif')
+            ->edit_column('is_masked', function ($row)  use ($type) {
+                $rst = '';
+                if ($row->is_masked == '1')
+                    $rst = '是';
+                else if ($row->is_masked == '0')
+                    $rst = '否';
+                if ($type == 0 || $type == 1) {
+                    $rst = '<B>' . $rst . '</B>';
+                }
+                return $rst;
+            })
             ->add_column ( 'checked',
                 '<div align="center"><input type="checkbox" name="checkitem[]" id="checkitem" value="{{{$mid}}}"></div>',
                 0
@@ -1194,7 +1486,10 @@ class AdminCourseController extends AdminController {
         $title = "输入添加模块课程";
         $moduleInfos = DB::table('teaching_plan_module')->where('teaching_plan_id', $id)
             ->where('teaching_plan_module.is_deleted', 0)
-            ->join('major_module_info', 'teaching_plan_module.module_id', '=', 'major_module_info.id')
+            ->join('major_module_info', function ($join) {
+                $join->on('teaching_plan_module.module_id', '=', 'major_module_info.id')
+                    ->where('major_module_info.is_deleted', '=', 0);
+            })
             ->select('major_module_info.id as mid', 'name','code')
             ->get();
         // Show the page
@@ -1230,27 +1525,29 @@ class AdminCourseController extends AdminController {
             return Redirect::to($url)->withInput()->withErrors(Lang::get('admin/course/messages.create.teaching_plan_module_not_exist'));
         }
 
-        $module_course = ModuleCourse::where('teaching_plan_module_id', $teaching_plan_module->id)
+        $teaching_plan_module_ids = TeachingPlanModule::where('teaching_plan_id', $teachingPlan_id)
+            ->where('is_deleted', 0)->select('id')->lists('id');
+        $module_course = ModuleCourse::whereIn('teaching_plan_module_id', $teaching_plan_module_ids)
             ->where('course_id', $course_id)
             ->first();
 
         if (empty($module_course)) {
             $module_course = new ModuleCourse();
-            $module_course->teaching_plan_module_id = $teaching_plan_module->id;
             $module_course->course_id = $course_id;
         }
-
+        $module_course->teaching_plan_module_id = $teaching_plan_module->id;
         if ($module_course->validate(Input::all())) {
             //verify overall
             $module_course->is_obligatory = $is_obligatory;
             $module_course->suggested_semester = $suggested_semester;
             $module_course->is_masked = $is_masked;
+            $module_course->is_deleted = 0;
             $module_course->save();
 
         } else {
             return Redirect::to($url)->withInput()->withErrors($module_course->errors());
         }
-        return Redirect::to($url)->withInput()->with('success', Lang::get('admin/course/messages.create.module_success'));
+        return Redirect::to($url)->withInput()->with('success', Lang::get('admin/course/messages.create.module_course_success'));
     }
 
     public function getQueryCourse(){
@@ -1273,7 +1570,7 @@ class AdminCourseController extends AdminController {
         return View::make ( 'admin/course/department_define', compact ( 'title'));
     }
     public function getDepartmentData() {
-        $programs = DB::table ('department_info')->select( 'id', 'name', 'code');
+        $programs = DB::table ('department_info')->select( 'id', 'name', 'code')->where('is_deleted', 0);
         return Datatables::of ( $programs )
             ->add_column('itemnumber', '', 0)
             ->add_column ( 'actions', '
@@ -1297,7 +1594,7 @@ class AdminCourseController extends AdminController {
 
         if ($department->validate(Input::all())) {
             //verify overall
-            $record_exists = DB::table('department_info')
+            $record_exists = DB::table('department_info')->where('is_deleted', 0)
                 ->where('name', Input::get('name'))
                 ->orWhere('code', Input::get('code'))
                 ->count();
@@ -1332,7 +1629,7 @@ class AdminCourseController extends AdminController {
             $department->code = Input::get('code');
 
             if ($department->validate(Input::all())) {
-                $record_exists = DB::table('department_info')
+                $record_exists = DB::table('department_info')->where('is_deleted', 0)
                     ->whereRaw('id != ? and (name = ? or code = ?)',
                         array($id, Input::get('name'), Input::get('code')))
                     ->count();
@@ -1363,7 +1660,10 @@ class AdminCourseController extends AdminController {
     {
         $department = EduDepartment::find($id);
         if (isset ($department) && $department->id) {
-            $department->delete();
+            DB::table('department_info')
+                ->where('id', $id)
+                ->update(array('is_deleted' => 1));
+            //$department->delete();
             return Redirect::to('admin/course/department_define')
                 ->with('success', Lang::get('admin/course/messages.update.department_success'));
         } else {
@@ -1379,7 +1679,7 @@ class AdminCourseController extends AdminController {
         return View::make ( 'admin/course/module_define', compact ( 'title'));
     }
     public function getModuleData() {
-        $programs = DB::table ('major_module_info')->select( 'id', 'name', 'code');
+        $programs = DB::table ('major_module_info')->select( 'id', 'name', 'code')->where('is_deleted', 0);
         return Datatables::of ( $programs )
             ->add_column('itemnumber', '', 0)
             ->add_column ( 'actions', '
@@ -1403,7 +1703,7 @@ class AdminCourseController extends AdminController {
 
         if ($module->validate(Input::all())) {
             //verify overall
-            $record_exists = DB::table('major_module_info')
+            $record_exists = DB::table('major_module_info')->where('is_deleted', 0)
                 ->where('name', Input::get('name'))
                 ->orWhere('code', Input::get('code'))
                 ->count();
@@ -1438,7 +1738,7 @@ class AdminCourseController extends AdminController {
             $module->code = Input::get('code');
 
             if ($module->validate(Input::all())) {
-                $record_exists = DB::table('major_module_info')
+                $record_exists = DB::table('major_module_info')->where('is_deleted', 0)
                     ->whereRaw('id != ? and (name = ? or code = ?)',
                         array($id, Input::get('name'), Input::get('code')))
                     ->count();
@@ -1469,7 +1769,10 @@ class AdminCourseController extends AdminController {
     {
         $module = MajorModuleInfo::find($id);
         if (isset ($module) && $module->id) {
-            $module->delete();
+            DB::table('major_module_info')
+                ->where('id', $id)
+                ->update(array('is_deleted' => 1));
+            //$module->delete();
             return Redirect::to('admin/course/module_define')
                 ->with('success', Lang::get('admin/course/messages.update.module_success'));
         } else {

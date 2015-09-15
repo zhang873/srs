@@ -30,7 +30,8 @@
 
         <div class="form-group" align="center">
             <label class="rlbl">{{ Lang::get('admin/course/table.name') }}</label>
-            <input tabindex="3" type="text" class="twidth" name="course_name" id="course_name" readonly="readonly" value="{{ Input::old('course_name') }}">
+            <input tabindex="3" type="text" class="twidth" name="course_name" id="course_name"
+                readonly="true" style="border:0px;background-color:#d3d3d3" value="{{ Input::old('course_name') }}">
         </div>
 
         <div class="form-group" align="center">
@@ -48,7 +49,8 @@
 
         <div class="form-group" align="center">
             <label class="rlbl">{{ Lang::get('admin/course/table.credit') }}</label>
-            <input tabindex="5" type="text" class="twidth" name="course_credit" id="course_credit" readonly="readonly" value="{{ Input::old('course_credit') }}">
+            <input tabindex="5" type="text" class="twidth" name="course_credit" id="course_credit"
+                readonly="true" style="border:0px;background-color:#d3d3d3" value="{{ Input::old('course_credit') }}">
         </div>
 
         <div class="form-group" align="center">

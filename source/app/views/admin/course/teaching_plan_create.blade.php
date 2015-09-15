@@ -237,8 +237,14 @@
                 ex = /^[1-9]\d*$/;
                 str = $("#max_credit_exemption").val();
                 if (!ex.test(str)) {
-                    alert("请输入免修免考最高学分，只接受数字");
+                    alert("请输入免修免考最高学分，只接受数字且不能为0");
                     $("#max_credit_exemption").focus();
+                    return false;
+                }
+                str = $("#max_credit_semester").val();
+                if (!ex.test(str)) {
+                    alert("请输入新选课最高学分，只接受数字且不能为0");
+                    $("#max_credit_semester").focus();
                     return false;
                 }
                 var pass = true;

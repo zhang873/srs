@@ -216,6 +216,22 @@
 @section('scripts')
 <script type="text/javascript">
     $(document).ready(function(){
+        Date.prototype.format = function(partten)
+        {
+            if(partten ==null||partten=='')
+            {
+                partten = 'yyyy-mm-dd';
+            }
+            var y = this.getFullYear();
+            var m = this.getMonth()+1;
+            var d = this.getDate();
+            var r = partten.replace(/y+/gi,y);
+            r = r.replace(/m+/gi,(m<10?"0":"")+m);
+            r = r.replace(/d+/gi,(d<10?"0":"")+d);
+            return r;
+        }
+        var d = new Date().format('yyyy-mm-dd');
+        $("#define_date").val(d);
         $("#btnOK").click(function(){
             var ex = /^[\u4e00-\u9fa5\w()]+$/;
             var str = $("#name").val();
@@ -251,17 +267,18 @@
                 $("#department_id").focus();
                 return false;
             }
-            ex = /^[1-9]\d*$/;
+            ex = /^[1-9]$/;
             str = $("#credit").val();
+
             if (!ex.test(str)) {
-                alert("请输入学分，只接受数字");
+                alert("请输入学分，范围（1-9）");
                 $("#credit").focus();
                 return false;
             }
-            ex = /^[\u4e00-\u9fa5\w()]*$/;
+            ex = /^[\u4e00-\u9fa5]+$/;
             str = $("#remark").val();
-            if (!ex.test(str)) {
-                alert("备注只能包括文字、数字、括号、下划线");
+            if (str!='' && !ex.test(str)) {
+                alert("备注只能包括文字");
                 $("#remark").focus();
                 return false;
             }

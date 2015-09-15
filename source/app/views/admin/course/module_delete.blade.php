@@ -12,7 +12,7 @@
         <!-- Form Actions -->
         <div class="form-group">
             <div class="controls">
-                <element class="btn-cancel close_popup">{{{ Lang::get('general.cancel') }}}</element>
+                <button class="btn-cancel close_popup">{{{ Lang::get('general.cancel') }}}</button>
                 <button type="submit" class="btn btn-danger">{{{ Lang::get('general.delete') }}}</button>
             </div>
         </div>

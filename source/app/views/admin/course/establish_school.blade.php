@@ -26,8 +26,8 @@
     <div class="form-group" align="center">
         <label class="rlbl">{{ Lang::get('admin/course/title.semester') }}</label>
         <select size="1" tabindex="2" name="semester" id="semester" style="width:200px;">
-          <option value="1" selected="selected">春季</option>
-          <option value="2">秋季</option>
+            <option value="1"  selected="selected">春季</option>
+            <option value="2">秋季</option>
         </select>
     </div>
     <br><br>
@@ -180,8 +180,8 @@
                                 d["checkitem[]"].push(value.value);
                             });
                         }
-                        d["code"]= $('#code').val();
-                        d["year"]=$('#year').val();
+                        d["code"] = $.trim($('#code').val());
+                        d["year"] = $.trim($('#year').val());
                         d["semester"]= $('#semester').val();
                         d["major"]=$('#major').val();
                         d["major_classification"]=$('#major_classification').val();
@@ -203,6 +203,33 @@
 			});
 
             $("#btnQuery").click(function(){
+                var ex = /^\d+$/;
+                var str = $.trim($('#year').val());
+                if (str != ''){
+                    if (!ex.test(str)) {
+                        alert("年度只接受数字");
+                        $("#year").focus();
+                        return false;
+                    }
+                    if (str.length > 4) {
+                        alert("年度长度超过4位");
+                        $("#year").focus();
+                        return false;
+                    }
+                }
+                str = $.trim($('#code').val());
+                if (str != ''){
+                    if (!ex.test(str)) {
+                        alert("课程编号只接受数字");
+                        $("#code").focus();
+                        return false;
+                    }
+                    if (str.length > 5) {
+                        alert("课程编号超过5位");
+                        $("#code").focus();
+                        return false;
+                    }
+                }
                 $("#btnValue").val(2);
                 $("#checkAll").prop("checked",false);
                 oTable.fnReloadAjax();

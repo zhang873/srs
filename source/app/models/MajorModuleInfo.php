@@ -20,8 +20,13 @@ class MajorModuleInfo extends Eloquent
     
     public function validate($data)
     {
+        $messages = array(
+            'name.required' => '请输入模块名称',
+            'code.required' => '请输入模块代码',
+            'code.digits' => '模块代码为5位数字'
+        );
         // make a new validator object
-        $v = Validator::make($data, $this->rules);
+        $v = Validator::make($data, $this->rules, $messages);
         
         // check for failure
         if ($v->fails())
