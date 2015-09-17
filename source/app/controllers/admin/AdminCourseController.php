@@ -188,6 +188,12 @@ class AdminCourseController extends AdminController {
                 //获取excel的第几张表
                 $reader = $reader->getSheet(0);
                 $results = $reader->toArray("");
+                //去除前后空格
+                for ($i = 0; $i < count($results); $i++) {
+                    for ($j = 0; $j < count($results[$i]); $j++) {
+                        $results[$i][$j] = trim($results[$i][$j]);
+                    }
+                }
                 $start = -1;
                 $idx_ary = array();
                 for ($i = 0; $i < count($results); $i++) {
@@ -237,7 +243,7 @@ class AdminCourseController extends AdminController {
                         }
                     }
                 }
-
+                $majors = RawProgram::Select('name')->lists('name');
                 if ($start != -1) {
                     $idx_ary = ($results[$start]);
                     foreach ($idx_ary as $k => $v) {
@@ -324,13 +330,21 @@ class AdminCourseController extends AdminController {
                                 return;
                             }
 
-                            $course->define_date = $results[$i][$idx_ary[Lang::get('admin/course/table.define_date')]];
-                            $pattern = '/^(?:(?!0000)[0-9]{4}-(?:(?:0[1-9]|1[0-2])-(?:0[1-9]|1[0-9]|2[0-8])|(?:0[13-9]|1[0-2])-(?:29|30)|(?:0[13578]|1[02])-31)|(?:[0-9]{2}(?:0[48]|[2468][048]|[13579][26])|(?:0[48]|[2468][048]|[13579][26])00)-02-29)$/';
-                            if (preg_match($pattern, $course->define_date) == 0) {
+                            $define_date = $results[$i][$idx_ary[Lang::get('admin/course/table.define_date')]];
+                            /*
+                            $pattern = '/^(\d{4}|\d{2})(\-|\/|\.)\d{1,2}(\-|\/|\.)\d{1,2}$/';
+                            if (preg_match($pattern, $define_date) == 0) {
                                 $rst = 18;
                                 $text = $course->define_date;
                                 return;
+                            }*/
+                            $is_date = strtotime($define_date);
+                            if ($is_date === false) {
+                                $rst = 18;
+                                $text = $define_date;
+                                return;
                             }
+                            $course->define_date = $define_date;
                             $course->remark = $results[$i][$idx_ary[Lang::get('admin/course/table.remark')]];
                             if (!empty($course->remark)) {
                                 $pattern = '/^[\x{4e00}-\x{9fa5}]+$/u';
@@ -352,7 +366,7 @@ class AdminCourseController extends AdminController {
                             } elseif ($classification === "专科") {
                                 $course->classification = 14;
                             } else {
-                                $rst = 20;
+                                $rst = 21;
                                 $text = $classification;
                                 return;
                             }
@@ -362,7 +376,7 @@ class AdminCourseController extends AdminController {
                             } elseif ($state === "停用") {
                                 $course->state = 0;
                             } else {
-                                $rst = 21;
+                                $rst = 20;
                                 $text = $state;
                                 return;
                             }
@@ -404,6 +418,10 @@ class AdminCourseController extends AdminController {
                                 return;
                             }
                             $teachingPlan->major = $results[$i][$idx_ary[Lang::get('admin/course/title.major')]];
+                            if (!in_array($teachingPlan->major, $majors)) {
+                                $rst = 38;
+                                return;
+                            }
                             $teachingPlan->min_credit_graduation = $results[$i][$idx_ary[Lang::get('admin/course/table.min_credit_graduation')]];
                             $pattern = '/^\d+(\.\d+)?$/';
                             if (preg_match($pattern, $teachingPlan->min_credit_graduation) == 0) {
@@ -618,6 +636,23 @@ class AdminCourseController extends AdminController {
         }
     }
 
+    public function postDownloadExcel(){
+        $type = Input::get('excel_type');
+        if ($type == "导入课程表")
+            $file_path = './excel_template/course.xls';
+        else if ($type == "导入教学计划")
+            $file_path = './excel_template/teaching_plan.xls';
+        else if ($type == "导入模块课程")
+            $file_path = './excel_template/module.xls';
+        if (file_exists($file_path) === true) {
+            header("Content-Type: application/zip");
+            header("Content-Length: " . filesize($file_path));
+            header("Content-Disposition: attachment; filename=" . basename($file_path));
+            readfile($file_path);
+        }
+    }
+
+
     public function getEstablish(){
         $title = Lang::get('admin/course/title.establish_province_course');
 
@@ -807,11 +842,11 @@ class AdminCourseController extends AdminController {
             })
             ->whereIn('teaching_plan_id', $teaching_plan_ids)
             ->whereIn('module_course.course_id', $province_ids)
-            ->leftjoin('teaching_plan', function ($join) {
+            ->join('teaching_plan', function ($join) {
                 $join->on('teaching_plan_module.teaching_plan_id', '=', 'teaching_plan.id')
                     ->where('teaching_plan.is_deleted', '=', 0);
             })
-            ->leftjoin('course', function ($join) {
+            ->join('course', function ($join) {
                 $join->on('module_course.course_id', '=', 'course.id')
                     ->where('course.is_deleted', '=', 0);
             })
@@ -823,9 +858,10 @@ class AdminCourseController extends AdminController {
                 $join->on('course.id', '=', 'student_selection.course_id')
                     ->where('student_selection.is_deleted', '=', 0);
             })
-            ->select('course.id as cid', 'course.code', 'course.name as cname', 'abbreviation', 'course.credit', 'credit_hour',
-                'teaching_plan.student_classification', 'is_practice', 'lecturer', 'is_certification', 'define_date', 'remark',
-                'department_info.name as dname', 'classification', 'state', DB::raw('count(distinct student_selection.student_id) as number'))
+            ->select('course.id as cid', 'course.code', 'course.name as cname', 'abbreviation', 'course.credit',
+                'credit_hour', 'teaching_plan.student_classification', 'is_practice', 'lecturer', 'is_certification',
+                'define_date', 'remark', 'department_info.name as dname', 'classification', 'state',
+                DB::raw('count(distinct student_selection.student_id) as number'))
             ->groupBy('course.id');
 
         if (!empty($course_code)) {
@@ -856,6 +892,7 @@ class AdminCourseController extends AdminController {
 
     public function getNext(){
         $ids = Input::get('checkitem');
+        $rst = '';
         if (!empty($ids)){
             $md = ModuleCurrent::where('module_id', 1)->first();
             if (!empty($md)){
@@ -871,8 +908,12 @@ class AdminCourseController extends AdminController {
                     $establish_province = EstablishProvince::where('course_id', $id)
                         ->where('year', $save_year)
                         ->where('semester', $save_semester)->first();
-                    if ($establish_province == null)
+                    if ($establish_province == null){
                         $establish_province = new EstablishProvince();
+                    }
+                    else{
+
+                    }
                     $establish_province->year = $save_year;
                     $establish_province->semester = $save_semester;
                     $establish_province->course_id = $id;
@@ -971,11 +1012,11 @@ class AdminCourseController extends AdminController {
             ->whereIn('teaching_plan_id', $teaching_plan_ids)
             ->whereIn('course_id', $establish_province_ids)
             ->whereNotIn('course_id', $establish_school_ids)
-            ->leftjoin('teaching_plan', function ($join) {
+            ->join('teaching_plan', function ($join) {
                 $join->on('teaching_plan_module.teaching_plan_id', '=', 'teaching_plan.id')
                     ->where('teaching_plan.is_deleted', '=', 0);
             })
-            ->leftjoin('course', function ($join) {
+            ->join('course', function ($join) {
                 $join->on('module_course.course_id', '=', 'course.id')
                     ->where('course.is_deleted', '=', 0);
             })
@@ -1087,11 +1128,11 @@ class AdminCourseController extends AdminController {
             })
             ->whereIn('teaching_plan_id', $teaching_plan_ids)
             ->whereIn('module_course.course_id', $school_ids)
-            ->leftjoin('teaching_plan', function ($join) {
+            ->join('teaching_plan', function ($join) {
                 $join->on('teaching_plan_module.teaching_plan_id', '=', 'teaching_plan.id')
                     ->where('teaching_plan.is_deleted', '=', 0);
             })
-            ->leftjoin('course', function ($join) {
+            ->join('course', function ($join) {
                 $join->on('module_course.course_id', '=', 'course.id')
                     ->where('course.is_deleted', '=', 0);
             })
@@ -1145,8 +1186,12 @@ class AdminCourseController extends AdminController {
                         ->where('campus_id', $campus_id)
                         ->where('year', $save_year)
                         ->where('semester', $save_semester)->first();
-                    if ($establish_campus == null)
+                    if ($establish_campus == null){
                         $establish_campus = new EstablishCampus();
+                    }
+                    else{
+                    }
+
                     $establish_campus->year = $save_year;
                     $establish_campus->semester = $save_semester;
                     $establish_campus->course_id = $id;

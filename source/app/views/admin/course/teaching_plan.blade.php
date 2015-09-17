@@ -74,7 +74,7 @@
             {{{ Lang::get('admin/course/title.course_query') }}}</button>
         <a href="{{{ URL::to('admin/course/teaching_plan_add') }}}" class="btn btn-small btn-info iframe"><span class="glyphicon glyphicon-plus-sign"></span>
             {{{ Lang::get('admin/course/title.teaching_plan_add') }}}</a>
-        <a href="{{{ URL::to('admin/course/teaching_plan/importExcel') }}}" class="btn btn-small btn-info iframe_s">
+        <a href="{{{ URL::to('admin/course/teaching_plan/importExcel') }}}" class="btn btn-small btn-info iframe_excel">
             {{{ Lang::get('admin/course/title.teaching_plan_import') }}}</a>
     </div>
     <br><br>
@@ -155,6 +155,7 @@
 
 	<script type="text/javascript">
         $(".iframe").colorbox({iframe:true, width:"60%", height:"90%"});
+        $(".iframe_excel").colorbox({iframe:true, width:"40%", height:"50%"});
         var oTable = null;
         var str = "<?php $str = implode("|", $b_majors); echo $str;?>";
         var b_majors = str.split("|");

@@ -124,6 +124,11 @@
 
 <script type="text/javascript">
 $(document).ready(function(){
+$("form").bind("keydown",function(event){
+    if(event.keyCode == 13){
+       event.preventDefault();
+    }
+});
 $('.close_popup').click(function(){
     if (parent.oTable != null)
         parent.oTable.fnReloadAjax();

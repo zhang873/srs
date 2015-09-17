@@ -21,6 +21,7 @@ return array(
     'course_unset'   => '置为停用',
     'select_excel' =>  '选择',
     'upload_excel' =>  '上传',
+    'download_excel' =>  '下载模板',
     'course_id_exist' =>  '课程ID已存在',
     'year' =>  '年度',
     'semester' =>  '学期',

@@ -10,12 +10,12 @@
         <!-- ./ csrf token -->
 
         <!-- Form Actions -->
-        <div class="form-group">
+
             <div class="controls">
-                <button class="btn-cancel close_popup">{{{ Lang::get('general.cancel') }}}</button>
+                <button class="btn btn-default close_popup">{{{ Lang::get('general.cancel') }}}</button>
                 <button type="submit" class="btn btn-danger">{{{ Lang::get('general.delete') }}}</button>
             </div>
-        </div>
+
         <!-- ./ form actions -->
     </form>
 @stop

@@ -1,7 +1,17 @@
-@extends('admin.layouts.mymodal')
+@extends('admin.layouts.default')
+
+{{-- Web site Title --}}
+@section('title')
+	{{{ $title }}} :: @parent
+@stop
 
 {{-- Content --}} 
 @section('content')
+    <div class="page-header">
+		<h3>
+			{{{ $title }}}
+		</h3>
+	</div>
     <div class="pull-right">
         <a href="{{{ URL::to('admin/course/teaching_plan') }}}" class="btn btn-default btn-small btn-inverse">
             <span class="glyphicon glyphicon-circle-arrow-left"></span> {{{ Lang::get('general.back') }}}</a>

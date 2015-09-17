@@ -124,7 +124,7 @@
 
 	<script type="text/javascript">
         $(".iframe").colorbox({iframe:true, width:"80%", height:"80%"});
-        $("#iframe_s").colorbox({iframe:true, width:"40%", height:"40%"});
+        $("#iframe_s").colorbox({iframe:true, width:"40%", height:"50%"});
         var oTable;
         var str = "<?php $str = implode("|", $b_majors); echo $str;?>";
         var b_majors = str.split("|");

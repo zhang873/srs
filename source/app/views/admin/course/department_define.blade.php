@@ -58,7 +58,7 @@
 		        "bServerSide": true,
 		        "sAjaxSource": "{{ URL::to('admin/course/department_data') }}",
 		        "fnDrawCallback": function ( oSettings ) {
-	           		$(".iframe").colorbox({iframe:true, width:"80%", height:"80%"});
+	           		$(".iframe").colorbox({iframe:true, width:"50%", height:"60%"});
 
                     if ( oSettings.bSorted || oSettings.bFiltered || oSettings.bDrawing)
                     {

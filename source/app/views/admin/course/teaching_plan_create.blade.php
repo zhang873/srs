@@ -114,8 +114,8 @@
     <!-- Form Actions -->
     <div class="form-group">
         <div class="controls">
-            <button class="btn-cancel close_popup">{{{ Lang::get('admin/depart/table.cancel') }}}</button>
-            <button id="btnAdd" type="submit" class="btn btn-success">{{{ Lang::get('admin/depart/table.ok') }}}</button>
+            <button class="btn btn-default close_popup">{{{ Lang::get('general.cancel') }}}</button>
+            <button id="btnAdd" type="submit" class="btn btn-success">{{{ Lang::get('general.add') }}}</button>
 		</div>
     </div>
     <div id="show">
@@ -123,6 +123,7 @@
     </div>
     <!-- ./ form actions -->
 </form>
+
 @stop
 
 @section('styles')
@@ -254,16 +255,25 @@
                         if (ck == true){
                             var obj = $(this).find("[name='credit[]']");
                             str = obj.val();
+
                             if (!ex.test(str)) {
                                 alert("请输入学分，只接受数字");
                                 obj.focus();
                                 pass = false;
                                 return false;
                             }
+                            var credit = parseInt(str);
                             obj = $(this).find("[name='min_credit_module[]']");
                             str = obj.val();
                             if (!ex.test(str)) {
                                 alert("请输入模块最低学分，只接受数字");
+                                obj.focus();
+                                pass = false;
+                                return false;
+                            }
+                            var min_credit = parseInt(str);
+                            if (min_credit > credit){
+                                alert("模块最低学分不能大于模块学分");
                                 obj.focus();
                                 pass = false;
                                 return false;

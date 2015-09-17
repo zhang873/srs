@@ -180,9 +180,8 @@
     <!-- Form Actions -->
     <div class="form-group">
         <div class="controls">
-            <button class="btn-cancel close_popup">{{{ Lang::get('admin/depart/table.cancel') }}}</button>
-            <button id="btnOK" type="submit" class="btn btn-success">{{{
-				Lang::get('admin/depart/table.ok') }}}</button>
+            <button class="btn btn-default close_popup">{{{ Lang::get('general.cancel') }}}</button>
+            <button id="btnOK" type="submit" class="btn btn-success">{{{ Lang::get('general.add') }}}</button>
 		</div>
     </div>
     <!-- ./ form actions -->

@@ -78,9 +78,8 @@
     <!-- Form Actions -->
     <div class="form-group">
         <div class="controls">
-            <button class="btn-cancel close_popup">{{{ Lang::get('admin/depart/table.cancel') }}}</button>
-            <button id="btnAdd" type="submit" class="btn btn-success">{{{
-				Lang::get('admin/depart/table.ok') }}}</button>
+            <button class="btn btn-default close_popup">{{{ Lang::get('general.cancel') }}}</button>
+            <button id="btnAdd" type="submit" class="btn btn-success">{{{ Lang::get('general.add') }}}</button>
 		</div>
     </div>
     <!-- ./ form actions -->
@@ -136,6 +135,10 @@
                         $("#course_credit").val(infos[0]);
                         $("#course_name").val(infos[1]);
                     }
+                    else{
+                        alert("课程编号不存在");
+                        $("#course_code").focus();
+                    }
                 }
             });
         });
@@ -152,20 +155,20 @@
             str = $("#course_code").val();
             if (!ex.test(str)) {
                 alert("请输入课程编号，只接受5位数字输入，且最高位从1开始");
-                $("#course_id").focus();
+                $("#course_code").focus();
                 return false;
             }
 
             str = $("#course_name").val();
             if (str=='') {
-                alert("请输入课程名称");
-                $("#course_name").focus();
+                alert("请输入课程编号，只接受5位数字输入，且最高位从1开始");
+                $("#course_code").focus();
                 return false;
             }
             str = $("#course_credit").val();
             if (str=='') {
-                alert("请输入学分");
-                $("#course_credit").focus();
+                alert("请输入课程编号，只接受5位数字输入，且最高位从1开始");
+                $("#course_code").focus();
                 return false;
             }
 

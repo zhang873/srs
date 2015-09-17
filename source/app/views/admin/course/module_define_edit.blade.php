@@ -44,12 +44,16 @@
     <!-- ./ tabs content -->
 
     <!-- Form Actions -->
-    <div class="form-group">
+
         <div class="controls">
-            <button class="btn-cancel close_popup">{{{ Lang::get('admin/depart/table.cancel') }}}</button>
-            <button type="submit" class="btn btn-success">{{{ Lang::get('admin/depart/table.ok') }}}</button>
+            <button class="btn btn-default close_popup">{{{ Lang::get('general.cancel') }}}</button>
+            @if ($mode == 'create')
+                <button type="submit" class="btn btn-success">{{{ Lang::get('general.add') }}}</button>
+            @else
+                <button type="submit" class="btn btn-success">{{{ Lang::get('button.ok') }}}</button>
+            @endif
 		</div>
-    </div>
+
     <!-- ./ form actions -->
 </form>
 @stop

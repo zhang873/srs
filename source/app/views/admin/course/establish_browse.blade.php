@@ -323,7 +323,11 @@ div.DTTT{
                     success: function (json) {
                         if (json == 'ok') {
                             alert("添加成功");
-                        } else {
+                        }
+                        else if (json == 'added') {
+                            alert("该课程已在下一学期开设课程中");
+                        }
+                        else {
                             alert("添加失败");
                         }
                     }

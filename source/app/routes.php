@@ -72,6 +72,7 @@ Route::group(array('prefix' => 'admin', 'before' => 'auth'), function()
     //Route::post('course/importExcel', 'AdminCourseController@postImportExcel');
     Route::get('course/{type}/importExcel', 'AdminCourseController@getImportExcel');
     Route::post('course/{type}/importExcel', 'AdminCourseController@postImportExcel');
+    Route::post('course/download_excel', 'AdminCourseController@postDownloadExcel');
 
     Route::get('course/establish', 'AdminCourseController@getEstablish');
     Route::get('course/establish_data', 'AdminCourseController@getEstablishData');

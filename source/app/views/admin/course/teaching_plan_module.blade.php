@@ -2,6 +2,7 @@
 
 {{-- Content --}} 
 @section('content')
+    @if (count($rsts) > 0)
     <div class="form-group" align="center">
         <h3>
             {{{ $teachingPlan_code }}}专业模块表
@@ -30,6 +31,13 @@
             <td></td>
         </tr>
     </table>
+    @else
+        <div>
+            <h4>
+                <b>无模块信息</b>
+            </h4>
+        </div>
+    @endif
 
     <div class="pull-right">
         <button class="btn btn-default btn-small btn-inverse close_popup"><span class="glyphicon glyphicon-circle-arrow-left"></span> {{{ Lang::get('general.back') }}}</button>
