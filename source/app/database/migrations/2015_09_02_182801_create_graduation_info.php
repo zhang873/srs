@@ -17,7 +17,7 @@ class CreateGraduationInfo extends Migration {
             Schema::create('graduation_info', function ($table) {
                 $table->engine = 'InnoDB';
                 $table->increments('id');
-                $table->integer('student_id')->unsigned()->index();
+
                 $table->tinyinteger('is_applied');
                 $table->smallInteger('application_year');
                 $table->tinyInteger('application_ semester');
@@ -29,8 +29,9 @@ class CreateGraduationInfo extends Migration {
                 $table->tinyInteger('is_deleted');
 
                 $table->timestamps();
-
-                $table->foreign('student_id')->references('id')->on('admissions')->onDelete('cascade');
+                
+                $table->string('student_id',15)->index();
+               // $table->foreign('student_id')->references('studentno')->on('admissions');
 
             });
         }
