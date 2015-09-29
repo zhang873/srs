@@ -1,4 +1,4 @@
-@extends('admin.layouts.default')
+@extends('admin.layouts.frame_modal')
 
 {{-- Web site Title --}}
 @section('title')
@@ -7,20 +7,16 @@
 
 {{-- Content --}}
 @section('content')
-    <div class="page-header">
-        <h3>
-            {{{ $title }}}
-        </h3>
-    </div>
+{{-- Web site Title --}}
     <br><br>
     <div id="show_info" align="center">
-        <form method="post" id="form" action="{{ URL::to('admin/admissions/save_edit_otherInfo') }}">
+        <form method="post" id="form" action="">
             <!-- CSRF Token -->
             <input type="hidden" name="_token" value="{{{ csrf_token() }}}" />
             <!-- ./ csrf token -->
             <!-- Tabs Content -->
-
         @if (!empty($admission))
+                <input type="hidden" name="student_id" value="{{$admission->id}}" />
                 <table id="studentInfo" class="table table-striped table-hover table-bordered" style="width: 800px">
                     <thead><tr><td colspan="4" align="center"><h4>{{Lang::get('admin/admissions/table.student_basic_info')}}</h4></td></tr></thead>
                 <tr>

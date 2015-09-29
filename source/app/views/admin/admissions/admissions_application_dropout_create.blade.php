@@ -1,24 +1,23 @@
-@extends('admin.layouts.default')
+@extends('admin.layouts.frame_modal')
 
 {{-- Web site Title --}}
 @section('title')
-    {{{ $title }}} :: @parent
+    create_dropout:: @parent
 @stop
-
 {{-- Content --}}
 @section('content')
-    <div class="page-header">
-        <h3>
-            {{{ $title }}}
-        </h3>
-    </div>
+   <form id="form" method="post" action="">
 
-    <form id="form" method="post" action="{{URL::to('admin/admissions/save_application_dropout')}}">
         <!-- CSRF Token -->
         <input type="hidden" name="_token" value="{{{ csrf_token() }}}" />
         <!-- ./ csrf token -->
+       @if (!empty($admission))
+           @if ($mode =='edit')
+                <div>备注：点击【修改】链接后，会出现以下页面</div>
+           @endif
         <input type="hidden" id="student_id" name="student_id" value="{{$admission->id}}">
-        <table id="admissions"  class="table table-striped table-hover table-bordered" align="center" style="width:800px">
+
+           <table id="admissions"  class="table table-striped table-hover table-bordered" align="center" style="width:800px">
             <tr>
                 <td colspan="4" align="center"><h3>考生基本资料</h3></td>
             </tr>
@@ -350,6 +349,7 @@
                 <tr>
                     <th style="width: 150px;">申请年度</th>
                     <td>
+                        @if($mode=='create')
                         <select name="year" id="year" style="width:150px;" disabled="disabled">
                             <option value="">请选择</option>
                             @for ($i=2000;$i<2025;$i++)
@@ -357,32 +357,57 @@
                             @endfor
 
                         </select>
+                        @else
+                            <select name="year" id="year" style="width:150px;"  disabled="disabled">
+                                <option value="">请选择</option>
+                                @for ($i=2000;$i<2025;$i++)
+                                    <option value="{{{$i}}}" @if ($admission->application_year == $i) selected="selected" @endif >{{$i}}</option>
+                                @endfor
+                            </select>
+                        @endif
                     </td>
                     <th class="col-md-1" style="width: 150px;">申请学期</th>
                     <td style="width: 150px;">
-                        <select name="semester" id="semester" style="width:150px;"  disabled="disabled">
-                            <option value="">请选择</option>
-                            <option value="02" @if ($yearsemester->current_semester == '02') selected="selected" @endif >秋季</option>
-                            <option value="01" @if ($yearsemester->current_semester == '01') selected="selected" @endif>春季</option>
-                        </select>
+                        @if($mode=='create')
+                            <select name="semester" id="semester" style="width:150px;"  disabled="disabled">
+                                <option value="">请选择</option>
+                                <option value="02" @if ($yearsemester->current_semester == '02') selected="selected" @endif >秋季</option>
+                                <option value="01" @if ($yearsemester->current_semester == '01') selected="selected" @endif>春季</option>
+                            </select>
+                        @else
+                            <select name="semester" id="semester" style="width:150px;"  disabled="disabled">
+                                <option value="">请选择</option>
+                                <option value="02" @if ($admission->application_semester == '02') selected="selected" @endif >秋季</option>
+                                <option value="01" @if ($admission->application_semester == '01') selected="selected" @endif>春季</option>
+                            </select>
+                         @endif
                     </td>
                 </tr>
                 <tr>
                     <th class="col-md-1" style="width: 150px;">退学原因（必填）</th>
-                    <td style="width: 150px;"><input id="cause" name="cause" type="text"></td>
+                    <td style="width: 150px;">
+                        @if ($mode=='create')
+                        <input id="cause" name="cause" type="text">
+                         @else
+                            <input id="cause" name="cause" type="text" value="{{$admission->cause}}">
+                        @endif
+                    </td>
                     <th class="col-md-1" style="width: 150px;"></th>
                     <td style="width: 150px;"></td>
                 </tr>
+
         </table>
         <div align="center">
             <!-- Form Actions -->
-            <button type="submit" class="btn btn-default" value="2" id="btnSubmit">{{{ Lang::get('button.submit') }}}申请</button>
-            <!-- ./ form actions -->
-        </div>
-        <div>
-            <input type="hidden" id="btnValue" value="2">
-        </div>
-    </form>
+            <button type="submit" class="btn btn-small btn-info" value="2" id="btnSubmit">{{{ Lang::get('admin/admissions/table.submit_application') }}}</button>
+&nbsp;&nbsp; <button type="button" class="btn-cancel close_popup" onclick="javascript:window.location.href='{{URL::to('admin/admissions/get_dropout?student_id='.$admission->studentno)}}';">{{{ Lang::get('general.cancel') }}}</button>
+       </div>
+       @else
+           <table id="admissions"  class="table table-striped table-hover table-bordered" align="center" style="width:800px">
+           <tr><td align="center">{{Lang::get('admin/admissions/messages.no_student_info')}}</td></tr>
+           </table>
+           @endif
+   </form>
 @stop
 
 
@@ -390,22 +415,9 @@
 @section('scripts')
 
     <script type="text/javascript">
-
         $(document).ready(function() {
-            $('#form').submit(function () {
-                var year = $('#year').val();
-                var semester = $('#semester').val();
+            $("#form").submit(function () {
                 var cause = $('#cause').val();
-                if (year == "") {
-                    alert('请选择申请年度！');
-                    $('#year').focus();
-                    return false;
-                }
-                if (semester == "") {
-                    alert('请选择申请学期！');
-                    $('#semester').focus();
-                    return false;
-                }
                 if (cause == "") {
                     alert('请输入退学原因！');
                     $('#cause').focus();
@@ -413,6 +425,11 @@
                 }
                 return true;
             });
+            $(function(){
+                $("#btnSubmit").click(function () {
+                        parent.oTable.fnReloadAjax();
+                })
+            })
         });
 
     </script>

@@ -25,7 +25,7 @@
         <div class="form-group" align="center" width="600px">
             <label class="rlbl">{{ Lang::get('admin/admissions/table.current_semester') }}：</label>
             <label class="rlbl2" id="current_year">{{$current_year}}</label>年
-            <label class="rlbl2" id="current_semester">@if ($current_semester== 1) 春季 @else 秋季 @endif</label>
+            <label class="rlbl2" id="current_semester">@if ($current_semester== '01') 春季 @else 秋季 @endif</label>
         </div>
         <div class="form-group" align="center" width="600px">
             <label class="rlbl">{{ Lang::get('admin/admissions/table.next_semester') }}：</label>
@@ -34,8 +34,8 @@
             </select>
             <select name="semester" id="semester" style="width: 60px">
                 <option value="">请选择</option>
-                <option value="0"  @if ($current_semester == 1) selected="selected" @endif>秋季</option>
-                <option value="1"  @if ($current_semester == 0) selected="selected" @endif>春季</option>
+                <option value="02"  @if ($current_semester == '02') selected="selected" @endif>秋季</option>
+                <option value="01"  @if ($current_semester == '01') selected="selected" @endif>春季</option>
             </select>
         </div>
         <div  class="form-group" align="center">

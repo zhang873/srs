@@ -4,50 +4,37 @@
 @section('content')
 
     {{-- Create Form --}}
-    <form  id="create_edit_Form"  class="form-horizontal" method="post" action="" autocomplete="off">
+    <form  id="form"  class="form-horizontal" method="post" action="" autocomplete="off">
         <!-- CSRF Token -->
         <input type="hidden" name="_token" value="{{{ csrf_token() }}}" />
         <!-- ./ csrf token -->
-        <input type="hidden" name="id" id="id" value="{{$_GET['id']}}">
         <!-- Tabs Content -->
         <div class="form-group" align="center">
             <h4>
-                输入奖励级别
+                {{{Lang::get('admin/admissions/title.input_reward_level') }}}
             </h4>
         </div>
         <!-- level -->
-        <div class="form-group {{{ $errors->has('level') ? 'error' : '' }}}">
-            <label class="col-md-2 control-label" for="code">{{{
-                    Lang::get('admin/admissions/table.reward_level') }}}</label>
-            <div class="col-md-10">
+        <div class="form-group" align="center">
+            <label  for="reward_level" class="rlbl">{{{Lang::get('admin/admissions/table.reward_level') }}}</label>&nbsp;&nbsp;
                 @if ($mode == 'create')
-                    <input class="form-control" type="text" name="level" id="level"
-                           value="{{{ Input::old('level') }}}" /> {{ $errors->first('level', '<span
-                        class="help-inline">:message</span>') }}
+                    <input  type="text" name="reward_level" id="reward_level"  value="{{{ Input::old('reward_level') }}}" style="width: 150px" />
                 @else
-                    <input class="form-control" type="text" name="level" id="level"
-                           value="{{{ $reward->level }}}" /> {{ $errors->first('level', '<span
-                        class="help-inline">:message</span>') }}
+                    <input type="text" name="reward_level" id="reward_level"  value="{{{ $reward->reward_level }}}" style="width: 150px" />
                 @endif
-            </div>
         </div>
         <!-- ./ level -->
 
         <!-- sysid -->
-        <div class="form-group {{{ $errors->has('sysid') ? 'error' : '' }}}">
-            <label class="col-md-2 control-label" for="name">{{{
-				Lang::get('admin/depart/table.sysid') }}}</label>
-            <div class="col-md-10">
+        <div class="form-group" align="center">
+            <label for="code" class="rlbl">{{{	Lang::get('admin/admissions/table.code') }}}</label>&nbsp;&nbsp;
                 @if ($mode == 'create')
-                    <input class="form-control" type="text" name="sysid" id="sysid"
-                           value="{{{ Input::old('sysid') }}}" /> {{ $errors->first('sysid', '<span
-					class="help-inline">:message</span>') }}
+                    <input type="text" name="code" id="code"
+                           value="{{{ Input::old('code') }}}" style="width: 150px" />
                 @else
-                    <input class="form-control" type="text" name="sysid" id="sysid"
-                           value="{{{ $reward->sysid }}}" /> {{ $errors->first('sysid', '<span
-					class="help-inline">:message</span>') }}
+                    <input  type="text" name="code" id="code"
+                           value="{{{ $reward->code }}}" style="width: 150px" />
                 @endif
-            </div>
         </div>
         <!-- ./ sysid -->
 
@@ -55,17 +42,13 @@
 
         <!-- Form Actions -->
         <div class="form-group">
-            <div class="controls">
+            <div class="controls" align="center">
                 <button type="submit" class="btn btn-success">{{{ Lang::get('admin/admissions/table.save') }}}</button>
-                <button class="btn-cancel close_popup">{{{ Lang::get('admin/admissions/table.cancel') }}}</button>
+                <button type="button" class="btn btn-success" onclick="history.go(-1)">{{{ Lang::get('admin/admissions/table.cancel') }}}</button>
             </div>
         </div>
         <!-- ./ form actions -->
     </form>
-
-
-
-
 @stop
 
 
@@ -74,8 +57,51 @@
     <style>
         .rlbl{
             text-align:right;
-            width:80px;
-
+            width:150px;
         }
+        button{
+            margin: 0;
+        }
+
     </style>
+
+@stop
+{{-- Scripts --}}
+@section('scripts')
+
+    <script type="text/javascript">
+        $(document).ready(function() {
+            $("#form").submit(function () {
+                var level = $("#level").val();
+                var sysid = $("#sysid").val();
+
+                if (level == "") {
+                    alert("请输入奖励级别！");
+                    $("#level").focus();
+                    return false;
+                }else if (!empty(level) && (level.search(/(^(?!.*?_$)[\u4e00-\u9fa5]+$)/) == -1)) {
+                    alert("只能输入文字！");
+                    $("#level").focus();
+                    return false;
+                }
+
+                if (sysid == "") {
+                    alert("请输入5位数字代号！");
+                    $("#sysid").focus();
+                    return false;
+                }else if ((sysid.length !=5) || (sysid.search(/(^(?!.*?_$)[0-9_]+$)/) == -1)) {
+                    alert("只能输入5位数字代号！");
+                    $("#sysid").focus();
+                    return false;
+                }
+
+
+
+
+
+
+                return true;
+            });
+        });
+    </script>
 @stop

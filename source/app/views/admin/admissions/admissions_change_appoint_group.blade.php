@@ -16,7 +16,7 @@
         <input type="hidden" name="_token" value="{{{ csrf_token() }}}" />
         <!-- ./ csrf token -->
         <input type="hidden" name="campus" id="campus" value="{{$campus->id}}">
-    <input id="selectedChangings" name="selectedChangings" type="hidden" value="" />
+    <input id="selectedIds" name="selectedIds" type="hidden" value="" />
     <input id="selectedGroup" name="selectedGroup" type="hidden" value="" />
         <div class="form-group" align="center">
             <h4>
@@ -47,7 +47,7 @@
             </thead>
         </table>
     <div  class="form-group" align="center">
-        <button id="btnOk" name="state" value="2" class="btn btn-small btn-info" type="submit">确定</button>
+        <button id="btnOk" name="btnOk" value="2" class="btn btn-small btn-info" type="submit">确定</button>
     </div>
     <div>
         <input type="hidden" id="btnValue" name="btnValue" value="1"/>
@@ -67,38 +67,29 @@
 
 {{-- Scripts --}}
 @section('scripts')
-
     <script type="text/javascript">
+
         function countCheckedBoxes() {
-            var n = $( "#checkItem:checked" ).length;
-            if (n>0) {
-                for (i=0;i<$("#checkItem:checked" ).length;i++) {
-                    if (i==0) {
-                        $("#selectedChangings").val($("#checkItem:checked" )[i].value);
-                        $("#selectedGroup").val($("#group" )[i].value);
-                    } else {
-                        $("#selectedChangings").val($("#selectedChangings").val() + ',' + $("#checkItem:checked" )[i].value);
-                    }
-                }
-                return true;
-            } else {
-                alert('请选择需指定的学生！');
-                return false;
-            }
-        }
-        function check(){
-            var n = $("#checkItem:checked" ).length;
+            var n = $("input[name='checkItem[]']:checkbox:checked" ).length;
+            var ids = $('#checkItem');
+            var m = ids.length;
+            var group = $('#group');
+            $("#selectedIds").val('');
+            $("#selectedGroup").val('');
             if (n==0) {
                 alert('请选择需指定班级的学生！');
                 return false;
+            }else  {
+              /* ids.each(function(i,e){
+                   if(e.checked()){
+                       $("#selectedIds").val($("#selectedIds").val() + ',' + ids[i].val());
+                       $("#selectedGroup").val($("#selectedGroup").val() + ',' + group[i].val());
+                   }
+               });
+             */   return true;
             }
-            var group = $('#group').val();
-            if (group == '') {
-                alert('请选择班级！');
-                return false;
-            }
-            return true;
         }
+
         var oTable;
         $(document).ready(function() {
             oTable = $('#admissions').dataTable( {
@@ -128,17 +119,9 @@
                 "ajax": {
                     "url": "{{{ URL::to('admin/admissions/data_admissions_change_appoint_group') }}}",
                     "data": function ( d ) {
-                        var fields = $('#checkItem :checked').serializeArray();
-                        if (fields.length > 0) {
-                            d["checkItem[]"] = new Array();
-                            d["group[]"] = new Array();
-                            $.each(fields, function(n, value){
-                                d["checkItem[]"].push(value.value);
-                                d["group[]"].push(value,value);
-                            });
-                        }
-                        d["group"]= $('#group').val();
-                        d["checkItem"]= $('#checkItem').val();
+                        d["selectedIds"]= $('#selectedIds').val();
+                        d["selectedGroup"]= $('#selectedGroup').val();
+                        d["state"]= $('#btnValue').val();
                     }
                 },
                 "fnDrawCallback": function ( oSettings ) {
@@ -156,17 +139,14 @@
                 "aaSorting": [ [0,'asc'] ]
             });
 
-
-            $(function() {
-
                 $("#btnOk").click(function(){
-                 //   countCheckedBoxes();
-                    if (check()){
                         $('btnValue').val(2);
-                        oTable.fnReloadAjax();
-                    }
+                        if(countCheckedBoxes()){
+                            oTable.fnReloadAjax();
+                        }
 
-                });
+
+
             });
         });
     </script>

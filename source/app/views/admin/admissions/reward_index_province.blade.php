@@ -7,17 +7,18 @@
 
 {{-- Content --}}
 @section('content')
-	<div class="page-header" align="center">
-		<h3>
-			{{{ $title }}}
-		</h3>
-	</div>
+    <div class="page-header">
+        <h3>
+            {{{ $title }}}
+        </h3>
+            <br>
+    </div>
 
 	<table id="school" class="table table-striped table-hover text-center table-bordered" width="60%" align="center">
 		<thead>
 			<tr>
-                <th class="col-md-2 text-center">{{{ Lang::get('admin/admissions/table.award_level') }}}</th>
-                <th class="col-md-2 text-center">{{{ Lang::get('admin/admissions/table.award_code') }}}</th>
+                <th class="col-md-2 text-center">{{{ Lang::get('admin/admissions/table.reward_level') }}}</th>
+                <th class="col-md-2 text-center">{{{ Lang::get('admin/admissions/table.code') }}}</th>
                 <th class="col-md-2 text-center">{{{ Lang::get('admin/admissions/table.action') }}}</th>
 			</tr>
 		</thead>
@@ -27,7 +28,7 @@
     <br>
     <br>
     <div align="center">
-        <a href="{{{ URL::to('admin/admissions/reward_define') }}}" class="btn btn-small btn-info iframe"><span class="glyphicon glyphicon-plus-sign"></span>{{{ Lang::get('admin/admissions/table.create_a_new_school') }}}</a>
+        <a href="{{{ URL::to('admin/admissions/define_reward') }}}" class="btn btn-small btn-info iframe"><span class="glyphicon glyphicon-plus-sign"></span>{{{ Lang::get('admin/admissions/table.add_a_reward_level') }}}</a>
     </div>
 @stop
 
@@ -44,7 +45,7 @@
 				},
 				"bProcessing": true,
 		        "bServerSide": true,
-		        "sAjaxSource": "{{ URL::to('admin/admissions/data_school') }}",
+		        "sAjaxSource": "{{ URL::to('admin/admissions/data_reward_index') }}",
 		        "fnDrawCallback": function ( oSettings ) {
 	           		$(".iframe").colorbox({iframe:true, width:"80%", height:"80%"});
 	     		},

@@ -13,7 +13,7 @@
         </h3>
         <div class="pull-right">
             <a href="{{{ URL::to('admin/admissions/group_define') }}}"><span class="glyphicon glyphicon-plus-sign"></span>{{{ Lang::get('admin/admissions/title.create_admin_group') }}}</a>&nbsp;&nbsp;
-            <a href="{{{ URL::to('admin/admissions/group_edit') }}}"><span class="glyphicon glyphicon-plus-sign"></span>{{{ Lang::get('admin/admissions/title.admin_group') }}}</a>
+            <a href="{{{ URL::to('admin/admissions/admin_group') }}}"><span class="glyphicon glyphicon-plus-sign"></span>{{{ Lang::get('admin/admissions/title.admin_group') }}}</a>
         </div>
         <br>
     </div>
@@ -21,6 +21,8 @@
         <!-- CSRF Token -->
         <input type="hidden" name="_token" value="{{{ csrf_token() }}}" />
         <!-- ./ csrf token -->
+    <input id="selectedGroups" name="selectedGroups" type="hidden" value="" />
+    <input id="selectedIds" name="selectedIds" type="hidden" value="" />
     <div align="center">
         <h4>
             {{Lang::get('admin/admissions/table.query_input')}}
@@ -39,7 +41,7 @@
                 </td>
             </tr>
                   <tr>
-                    <th class="col-md-1" style="width: 150px;">{{{ Lang::get('admin/admissions/table.student_type') }}}</th>
+                    <th class="col-md-1" style="width: 150px;">{{{ Lang::get('admin/admissions/table.student_type') }}}(*)</th>
                     <td style="width: 150px;">
                         <select size="1" tabindex="5" name="student_type" id="student_type" style="width:150px;">
                             <option value="">全部</option>
@@ -117,7 +119,7 @@
     <br>
     <div align="center" id="show_admissions">
         <div align="left">
-            备注：点击【查询】按钮后，会出现以下页面
+            {{Lang::get('admin/admissions/table.remark_query')}}
         </div>
         <div align="center">
             <h4>
@@ -142,6 +144,7 @@
             <th class="col-md-1">{{{ Lang::get('admin/admissions/table.huKou') }}}</th>
             <th class="col-md-1">{{{ Lang::get('admin/admissions/table.distribution') }}}</th>
             <th class="col-md-1">{{{ Lang::get('admin/admissions/table.occupationState') }}}</th>
+            <th class="col-md-1"></th>
             </thead>
         </table>
         <div  align="center">
@@ -152,7 +155,7 @@
         <br>
         <div align="center">
             <h4>
-                按学号范围和查询条件输入区的条件为学生指定管理班
+                {{Lang::get('admin/admissions/title.appoint_group_range_stu_no')}}
             </h4>
         </div>
         <table  class="table table-striped table-hover table-bordered" style="width: 600px">
@@ -163,7 +166,7 @@
                 <td><input type="text" id="end_stu_no" name="end_stu_no" style="width: 120px"></td>
             </tr>
             <tr>
-                <td>管理班</td>
+                <td>{{Lang::get('admin/admissions/table.admin_group')}}</td>
                 <td>
                     <select id="group_id" name="group_id" style="width:120px">
                         <option value="">{{Lang::get('general.pleaseselect')}}</option>
@@ -181,6 +184,7 @@
         </div>
     </div>
 @stop
+
 
 
 {{-- Scripts --}}
@@ -206,8 +210,26 @@
                     return true;
                 }
             }
-
+            if (state == 2){
+                if(n<10){
+                    alert('请选择班级！');
+                    return false;
+                }else{
+                    return true;
+                }
+            }
             return true;
+        }
+        function checkSelection() {
+            $("#selectedGroups").val('');
+            $("#selectedIds").val('');
+         //   $( "#group option:selected" ).each(function() {
+            $("select[name='group[]']").each(function(){
+                $("#selectedGroups").val($("#selectedGroups").val() + ',' + $(this).val());
+            });
+            $("input[name='ids[]']").each(function(){
+                $('#selectedIds').val($('#selectedIds').val() + ',' + $(this).val());
+            });
         }
             var oTable;
         $(document).ready(function() {
@@ -238,6 +260,8 @@
                 "ajax": {
                     "url": "{{{ URL::to('admin/admissions/data_admissions_appoint_group') }}}",
                     "data": function ( d ) {
+                        d["group"]= $('#selectedGroups').val();
+                        d["ids"]= $('#selectedIds').val();
                         d["student_id"]= $('#student_id').val();
                         d["student_name"]=$('#student_name').val();
                         d["major"]=$('#major').val();
@@ -279,15 +303,12 @@
                 });
                 $("#btnOK").click(function(){
                     $('#btnValue').val(2);
-                    if (check()){
-                        $('#show_admissions').show();
-                        oTable.fnReloadAjax();
-                    }
+                    checkSelection();
+                    oTable.fnReloadAjax();
                 });
                 $("#btnEdit").click(function(){
                     $('#btnValue').val(3);
                     if (check()){
-                        $('#show_admissions').show();
                         oTable.fnReloadAjax();
                     }
                 });

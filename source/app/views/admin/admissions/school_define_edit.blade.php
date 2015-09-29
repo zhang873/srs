@@ -75,13 +75,13 @@
         $(document).ready(
                 function() {
                     $("#form").submit(function () {
-                        var shcool_id = $("#shcool_id").val();
+                        var school_id = $("#school_id").val();
                         var school_name = $("#school_name").val();
 
 
-                        if (shcool_id == "") {
+                        if (school_id == "") {
                             alert("请输入分校代号！");
-                            $("#shcool_id").focus();
+                            $("#school_id").focus();
                             return false;
                         }
 

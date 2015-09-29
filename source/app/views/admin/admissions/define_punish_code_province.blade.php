@@ -4,11 +4,10 @@
 @section('content')
 
     {{-- Create Form --}}
-    <form  id="create_edit_Form"  class="form-horizontal" method="post" action="" autocomplete="off">
+    <form  id="form"  class="form-horizontal" method="post" action="" autocomplete="off">
         <!-- CSRF Token -->
         <input type="hidden" name="_token" value="{{{ csrf_token() }}}" />
         <!-- ./ csrf token -->
-        <input type="hidden" name="id" id="id" value="{{$_GET['id']}}">
         <!-- Tabs Content -->
         <div class="form-group" align="center">
             <h4>
@@ -16,45 +15,35 @@
             </h4>
         </div>
         <!-- level -->
-        <div class="form-group {{{ $errors->has('name') ? 'error' : '' }}}">
-            <label class="col-md-2 control-label" for="name">{{{
-                    Lang::get('admin/admissions/table.punish_code') }}}</label>
-            <div class="col-md-10">
+        <div class="form-group" align="center">
+            <label class="rlbl" for="punishment">{{{ Lang::get('admin/admissions/table.punish_code') }}}</label>
                 @if ($mode == 'create')
-                    <input class="form-control" type="text" name="name" id="name"
-                           value="{{{ Input::old('name') }}}" /> {{ $errors->first('name', '<span
-                        class="help-inline">:message</span>') }}
+                    <input type="text" name="punishment" id="punishment"
+                           value="{{{ Input::old('punishment') }}}" />
                 @else
-                    <input class="form-control" type="text" name="name" id="name"
-                           value="{{{ $reward->name }}}" /> {{ $errors->first('name', '<span
-                        class="help-inline">:message</span>') }}
+                    <input type="text" name="punishment" id="punishment"
+                           value="{{{ $code->punishment }}}" />
                 @endif
-            </div>
         </div>
         <!-- ./ level -->
 
         <!-- sysid -->
-        <div class="form-group {{{ $errors->has('sysid') ? 'error' : '' }}}">
-            <label class="col-md-2 control-label" for="name">{{{
-				Lang::get('admin/depart/table.sysid') }}}</label>
-            <div class="col-md-10">
+        <div class="form-group" align="center">
+            <label class="rlbl" for="code">{{{Lang::get('admin/depart/table.code') }}}</label>
                 @if ($mode == 'create')
-                    <input class="form-control" type="text" name="sysid" id="sysid"
-                           value="{{{ Input::old('sysid') }}}" /> {{ $errors->first('sysid', '<span
-					class="help-inline">:message</span>') }}
+                    <input type="text" name="code" id="code"
+                           value="{{{ Input::old('code') }}}" />
                 @else
-                    <input class="form-control" type="text" name="sysid" id="sysid"
-                           value="{{{ $reward->sysid }}}" /> {{ $errors->first('sysid', '<span
-					class="help-inline">:message</span>') }}
+                    <input  type="text" name="code" id="code"
+                           value="{{{ $code->code }}}" />
                 @endif
-            </div>
         </div>
         <!-- ./ sysid -->
 
         <!-- ./ tabs content -->
 
         <!-- Form Actions -->
-        <div class="form-group">
+        <div class="form-group" align="center">
             <div class="controls">
                 <button type="submit" class="btn btn-success">{{{ Lang::get('admin/admissions/table.save') }}}</button>
                 <button class="btn-cancel close_popup">{{{ Lang::get('admin/admissions/table.cancel') }}}</button>
@@ -69,13 +58,51 @@
 @stop
 
 
+
 @section('styles')
 
     <style>
         .rlbl{
             text-align:right;
-            width:80px;
-
+            width:150px;
         }
+        button{
+            margin: 0;
+        }
+
     </style>
+
+@stop
+{{-- Scripts --}}
+@section('scripts')
+
+    <script type="text/javascript">
+        $(document).ready(function() {
+            $("#form").submit(function () {
+                var punishment = $("#punishment").val();
+                var code = $("#code").val();
+
+                if (punishment == "") {
+                    alert("请输入惩罚代码！");
+                    $("#punishment").focus();
+                    return false;
+                }else if (!empty(punishment) && (punishment.search(/(^(?!.*?_$)[\u4e00-\u9fa5]+$)/) == -1)) {
+                    alert("只能输入文字！");
+                    $("#punishment").focus();
+                    return false;
+                }
+
+                if (code == "") {
+                    alert("请输入5位数字代号！");
+                    $("#code").focus();
+                    return false;
+                }else if ((code.length !=5) || (code.search(/(^(?!.*?_$)[0-9_]+$)/) == -1)) {
+                    alert("只能输入5位数字代号！");
+                    $("#code").focus();
+                    return false;
+                }
+                return true;
+            });
+        });
+    </script>
 @stop

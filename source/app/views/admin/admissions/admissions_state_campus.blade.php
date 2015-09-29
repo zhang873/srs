@@ -19,7 +19,12 @@
             {{Lang::get('admin/admissions/table.query_input')}}
         </h4>
     </div>
-
+    {{-- choose input form --}}
+    <!-- CSRF Token -->
+    <input type="hidden" name="_token" value="{{{ csrf_token() }}}" />
+    <!-- ./ csrf token -->
+    <input id="selectedStatus" name="selectedStatus" type="hidden" value="" />
+    <input id="selectedIds" name="selectedIds" type="hidden" value="" />
 
     <div class="form-group" align="center">
         <label for="id" class="rlbl" >{{ Lang::get('admin/admissions/table.student_name') }}</label>
@@ -47,28 +52,28 @@
     <div class="form-group" align="center">
         <button id="btnQuery" name="state" value="2" class="btn btn-small btn-info" >
             {{{ Lang::get('admin/admissions/table.query') }}}</button>
-
     </div>
     <br><br>
     <div class="form-group" align="center">
-     <table id="admissions" class="table table-striped table-hover table-bordered">
+     <table id="admissions" class="table table-striped table-hover">
         <thead>
         <tr>
             <th class="col-md-1"></th>
-            <th class="col-md-1">{{{ Lang::get('admin/admissions/table.student_name') }}}</th>
-            <th class="col-md-1">{{{ Lang::get('admin/admissions/table.student_id') }}}</th>
-            <th class="col-md-1">{{{ Lang::get('admin/admissions/table.group_code') }}}</th>
-            <th class="col-md-1">{{{ Lang::get('admin/admissions/table.major') }}}</th>
-            <th class="col-md-1">{{{ Lang::get('admin/admissions/table.major_classification') }}}</th>
-            <th class="col-md-1">{{{ Lang::get('admin/admissions/table.admission_state') }}}</th>
+            <th class="col-md-3">{{{ Lang::get('admin/admissions/table.student_name') }}}</th>
+            <th class="col-md-3">{{{ Lang::get('admin/admissions/table.student_id') }}}</th>
+            <th class="col-md-3">{{{ Lang::get('admin/admissions/table.group_code') }}}</th>
+            <th class="col-md-2">{{{ Lang::get('admin/admissions/table.major') }}}</th>
+            <th class="col-md-3">{{{ Lang::get('admin/admissions/table.major_classification') }}}</th>
+            <th class="col-md-3">{{{ Lang::get('admin/admissions/table.admission_state') }}}</th>
+            <th class="col-md-1"></th>
         </tr>
         </thead>
     </table>
     </div>
     <div class="form-group" align="center">
-        <button id="btnOk" name="state" value="1" class="btn btn-small btn-info" >
+        <button id="btnOk" name="state" value="1" class="btn btn-small btn-info" type="submit">
             {{{ Lang::get('admin/admissions/table.ok') }}}</button>
-
+        <input type="hidden" id="btnValue" name="btnValue" value="2">
     </div>
 @stop
 
@@ -80,9 +85,17 @@
             width:120px;
 
         }
-        .rtxt{
+        .col-md-1{
+            text-align:left;
+            width:20px;
+        }
+        .col-md-2{
             text-align:left;
             width:120px;
+        }
+        .col-md-3{
+            text-align:left;
+            width:80px;
         }
     </style>
 @stop
@@ -93,10 +106,22 @@
 @section('scripts')
 
     <script type="text/javascript">
+        function countSelects() {
+            $("#selectedStatus").val('');
+            $("#selectedIds").val('');
+            $( "select[name='status[]']" ).each(function() {
+                $("#selectedStatus").val($("#selectedStatus").val() + ',' + $(this).val());
 
+            });
+            $( "input[name='ids[]']" ).each(function() {
+                $("#selectedIds").val($("#selectedIds").val() + ',' + $(this).val());
+
+            });
+        }
         $(document).ready(function() {
             oTable = $('#admissions').dataTable( {
                 "searching":false,
+                "ordering":false,
                 "sDom": "<'row'<'col-md-6'l><'col-md-6'f>r>t<'row'<'col-md-6'i><'col-md-6'p>>",
                 "sPaginationType": "bootstrap",
                 "oLanguage": {
@@ -119,8 +144,10 @@
                 "bServerSide": true,
                 "bAutoWidth":  true,
                 "ajax": {
-                    "url": "{{{ URL::to('admin/admissions/data_admissions_state_campus') }}}",
+                    "url": "{{{ URL::to('admin/admissions/data_admissions_state') }}}",
                     "data": function ( d ) {
+                        d["status"]= $('#selectedStatus').val();
+                        d["ids"]= $('#selectedIds').val();
                         d["student_id"]= $('#student_id').val();
                         d["student_name"]=$('#student_name').val();
                         d["major"]=$('#major').val();
@@ -143,12 +170,15 @@
                 "aaSorting": [ [0,'asc'] ]
             });
             $("#btnQuery").click(function(){
-                $('#btnValue').val(2)
+                $('#btnValue').val(2);
                 oTable.fnReloadAjax();
             });
             $("#btnOk").click(function(){
-                $('#btnValue').val(1)
-                oTable.fnReloadAjax();
+                $('#btnValue').val(1);
+                countSelects();
+                oTable.fnReloadAjax()
+                 alert('修改学籍状态成功');
+
             });
         });
 

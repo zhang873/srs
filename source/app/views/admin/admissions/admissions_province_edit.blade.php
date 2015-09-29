@@ -1,4 +1,4 @@
-@extends('admin.layouts.default')
+@extends('admin.layouts.frame_modal')
 
 {{-- Web site Title --}}
 @section('title')
@@ -23,11 +23,11 @@
             </h3>
         </div>
         <br>
-        <form id="form" name="form" class="form-horizontal" method="post"  autocomplete="off" action="{{URL::to('admin/admissions/'.$admission->id.'/edit_admissions_province')}}">
+        <form id="form" name="form" class="form-horizontal" method="post"  autocomplete="off" action="{{URL::to('admin/admissions/edit_admissions_province?student_id='.$admission->id)}}">
             <!-- CSRF Token -->
             <input type="hidden" name="_token" value="{{{ csrf_token() }}}" />
             <!-- ./ csrf token -->
-            <input type="hidden" name="id" id="id" value="{{$admission->id}}">
+            <input type="hidden" name="student_id" id="student_id" value="{{$admission->id}}">
             <table id="edit_admissions" class="table table-striped table-hover table-bordered" style="width: 1000px">
                 <thead>
                 <tr>
@@ -361,10 +361,6 @@
             <div class="form-group" align="center">
                 <button id="btnSave" value="1" type="submit" class="btn btn-small btn-info" >
                     {{{ Lang::get('admin/admissions/table.save') }}}</button>
-                <button id="btnReset" value="2"  type="reset" class="btn btn-small btn-info" >
-                    {{{ Lang::get('admin/admissions/table.reset') }}}</button>
-                <button id="btnCancel" value="4"  type="button" class="btn btn-small btn-info" onclick="history.go(-1);">
-                    {{{ Lang::get('admin/admissions/table.cancel') }}}</button>
             </div>
             <div id="show">
                 <input type="hidden" id="btnValue" value="1" />
@@ -382,14 +378,22 @@
             width:150px;
         }
     </style>
+    {{ HTML::style('assets/css/jquery-ui.css') }}
 @stop
-
 
 {{-- Scripts --}}
 @section('scripts')
+    {{ HTML::script('assets/js/jquery.min.js') }}
+    {{ HTML::script('assets/js/jquery-ui-datepicker.js') }}
     <script type="text/javascript">
         $(document).ready(
                 function() {
+                    $(function() {
+                        $("#dateofbirth").datepicker({
+                            dateFormat: 'yy/mm/dd'
+
+                        });
+                    });
                     $("#form").submit(function () {
                         var student_name = $("#student_name").val();
                         var dateofbirth = $("#dateofbirth").val();
@@ -434,6 +438,9 @@
                         }
 
                         return true;
+                    });
+                    $("#btnSave").click(function () {
+                        parent.oTable.fnReloadAjax();
                     });
                 }
         );

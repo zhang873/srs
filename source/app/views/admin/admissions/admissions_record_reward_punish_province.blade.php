@@ -104,7 +104,7 @@
 @section('scripts')
 
     <script type="text/javascript">
-
+        var oTable;
         $(document).ready(function() {
             oTable = $('#admissions').dataTable( {
                 "searching":false,

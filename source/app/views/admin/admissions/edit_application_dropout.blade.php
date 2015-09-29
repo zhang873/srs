@@ -12,7 +12,7 @@
             {{{ $title }}}
         </h3>
         <div class="pull-right">
-            <a href="{{{ URL::to('admin/admissions/admissions_edit_dropout') }}}"><span class="glyphicon glyphicon-plus-sign"></span>{{{ Lang::get('admin/admissions/title.edit_dropout_application') }}}</a>&nbsp;&nbsp;
+            <a href="{{{ URL::to('admin/admissions/application_dropout') }}}"><span class="glyphicon glyphicon-plus-sign"></span>{{{ Lang::get('admin/admissions/title.application_dropout_admissions') }}}</a>&nbsp;&nbsp;
           </div>
         <br>
     </div>
@@ -31,18 +31,14 @@
     </div>
 
     <div class="form-group" align="center">
-
         <button id="btnQuery" name="state" value="2" class="btn btn-small btn-info" type="submit">
             {{{ Lang::get('admin/admissions/table.ok') }}}</button>
-
     </div>
-    <br><br>
 
     <div id="frame" style="display: none;">
-        <iframe src="" id="create_dropout" name="create_dropout" width="100%" height="600px" frameborder="0" scrolling="no"></iframe>
+        <iframe src="" id="dropout" name="dropout" width="100%" height="800px" frameborder="0" scrolling="no" ></iframe><br>
     </div>
 @stop
-
 
 {{-- Scripts --}}
 @section('scripts')
@@ -55,9 +51,9 @@
                 $('#student_id').focus();
                 return false;
             }
-            var ff = document.getElementById("create_dropout");
+            var ff = document.getElementById("dropout");
             if (ff != null){
-                ff.src ="{{{ URL::to('admin/admissions/admission_dropout_application') }}}" + "?student_id="+ $("#student_id").val() ;
+                ff.src ="{{{ URL::to('admin/admissions/get_dropout') }}}" + "?student_id="+ $("#student_id").val() ;
             }
             $('#frame').show();
 
