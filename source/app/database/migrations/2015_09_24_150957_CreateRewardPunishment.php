@@ -53,6 +53,8 @@ class CreateRewardPunishment extends Migration {
         		$table->engine = 'InnoDB';
         		$table->increments('id')->unsigned()->index();
         		$table->datetime('date');
+			    $table->smallInteger('year')->nullable();//new
+			    $table->tinyInteger('semester')->nullable();//new
         		$table->string('remark');
         		$table->string('document_id');
         		$table->string('operator');
