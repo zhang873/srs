@@ -230,7 +230,7 @@ Route::group(array('prefix' => 'admin', 'before' => 'auth'), function()
     Route::get('admissions/photo_link', 'AdminAdmissionController@getPhotoLink');
 
 
-    ed_exam_province
+    #unified_exam_province
     Route::get('unified_exam/approve_unified_exam', 'AdminUnifiedExamController@getIndexForProvince');
     Route::get('unified_exam/data_unified_exam_province','AdminUnifiedExamController@getDataForProvince');
     Route::get('unified_exam/{id}/unified_exam_province_pass','AdminUnifiedExamController@getPassForProvince');

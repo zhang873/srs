@@ -34,6 +34,14 @@
 <a href="{{{ URL::to('admin/course/department_define') }}}">{{{ Lang::get('admin/course/title.department_define') }}}</a>&nbsp;
 <a href="{{{ URL::to('admin/course/module_define') }}}">{{{ Lang::get('admin/course/title.module_define') }}}</a>&nbsp;
 </div>
+<div>
+<a href="{{{ URL::to('admin/exemption/exemption_type') }}}">{{{ Lang::get ( 'admin/exemption/title.manageexemptiontype') }}}</a>&nbsp;
+<a href="{{{ URL::to('admin/exemption/exemption_major_outer') }}}">{{{ Lang::get ( 'admin/exemption/title.managemajorouter') }}}</a>&nbsp;
+<a href="{{{ URL::to('admin/exemption/exemption_agency') }}}">{{{ Lang::get ( 'admin/exemption/title.manageexemptionagency') }}}</a>&nbsp;
+<a href="{{{ URL::to('admin/unified_exam/unified_exam_cause') }}}">{{{ Lang::get ( 'admin/admin.unified_exam_cause') }}}</a>&nbsp;
+<a href="{{{ URL::to('admin/unified_exam/unified_exam_subject') }}}">{{{ Lang::get ( 'admin/admin.unified_exam_subject') }}}</a>&nbsp;
+<a href="{{{ URL::to('admin/unified_exam/unified_exam_type') }}}">{{{ Lang::get ( 'admin/admin.unified_exam_type') }}}</a>&nbsp;
+</div>
 <br>
 <div>
 <a href="{{{ URL::to('admin/select/update_module_semester') }}}" class="iframe"> {{{ Lang::get('admin/select/title.update_module_year') }}}</a>&nbsp;
