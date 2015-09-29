@@ -48,6 +48,16 @@
 <a href="{{{ URL::to('admin/select/count_selection') }}}"> {{{ Lang::get('admin/select/title.count_selection') }}}</a>&nbsp;
 <a href="{{{ URL::to('admin/select/summary_selection') }}}"> {{{ Lang::get('admin/select/title.summary_selection') }}}</a>&nbsp;
 </div>
+<div>
+<a href="{{{ URL::to('admin/exemption/approve_exemption') }}}">{{{ Lang::get('admin/admin.exemption_province') }}}</a>&nbsp;
+<a href="{{{ URL::to('admin/unified_exam/approve_unified_exam') }}}">{{{ Lang::get('admin/admin.unified_exam_province') }}}</a>&nbsp;
+<a href="{{{ URL::to('admin/admissions/approve_admissions') }}}">{{{ Lang::get('admin/admin.admissions_province') }}}</a>&nbsp;
+<a href="{{{ URL::to('admin/admissions/school') }}}">{{{ Lang::get('admin/admin.manageschool') }}}</a>&nbsp;
+<a href="{{{ URL::to('admin/admissions/expel_admissions') }}}">{{ Lang::get('admin/admin.expel_admissions')}} </a>&nbsp;
+<a href="{{{ URL::to('admin/admissions/change_admissions_module_year_semester') }}}">{{ Lang::get('admin/admin.change_admissions_module_year_semester')}} </a>&nbsp;
+<a href="{{{ URL::to('admin/admissions/admissions_change_authority') }}}">{{ Lang::get('admin/admissions/title.admissions_change_authority')}} </a>&nbsp;
+
+</div>
 
 @elseif (Entrust::hasRole('staff'))
 <div>
@@ -95,7 +105,18 @@
 <a href="{{{ URL::to('admin/admissions/campus_reward_punish_info') }}}"> {{{ Lang::get('admin/admissions/title.admissions_reward_punish') }}}</a>&nbsp;
 <a href="{{{ URL::to('admin/admissions/campus_status_changing_info') }}}"> {{{ Lang::get('admin/admissions/title.admissions_status_changing') }}}</a>&nbsp;
 <a href="{{{ URL::to('admin/admissions/campus_information_classification_count') }}}"> {{{ Lang::get('admin/admissions/title.admissions_information_classification_count') }}}</a>&nbsp;
+<br>
+<a href="{{{ URL::to('admin/exemption') }}}">{{{ Lang::get('admin/admin.exemption') }}}</a>&nbsp;
+<a href="{{{ URL::to('admin/unified_exam') }}}">{{{ Lang::get('admin/admin.unified_exam') }}}</a>&nbsp;
+<a href="{{{ URL::to('admin/admissions/admissions_campus') }}}">{{{ Lang::get('admin/admin.admissions_campus') }}}</a>&nbsp;
+<a href="{{{ URL::to('admin/admissions/admissions_change_campus') }}}">{{{ Lang::get('admin/admin.change_admissions') }}}</a>&nbsp;
+<a href="{{{ URL::to('admin/admissions/admissions_change_appoint_group') }}}">{{{ Lang::get('admin/admin.change_admissions_appoint_group') }}}</a>&nbsp;
+<a href="{{{ URL::to('admin/admissions/admin_group') }}}">{{{ Lang::get('admin/admin.admin_group') }}}</a>&nbsp;
 
+<a href="{{{ URL::to('admin/admissions/application_dropout') }}}">{{ Lang::get('admin/admin.dropout_admissions')}} </a>&nbsp;
+<a href="{{{ URL::to('admin/admissions/application_recovery') }}}">{{ Lang::get('admin/admin.recovery_admissions')}} </a>&nbsp;
+<a href="{{{ URL::to('admin/admissions/admissions_record_reward_punish') }}}">{{ Lang::get('admin/admin.record_rewardpunish')}} </a>&nbsp;
+<a href="{{{ URL::to('admin/admissions/admissions_state') }}}">{{ Lang::get('admin/admin.managestate')}} </a>
 @stop
 
 @section('scripts')
