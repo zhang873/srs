@@ -126,10 +126,28 @@
 		$(document).ready(function() {
 
             $("#btnQuery").click(function(){
-                if ($('#student_id').val() == '') {
-                    alert("请输入学号");
-                    $("#student_id").focus();
-                    return false;
+                var ex = /^\d+$/;
+                var str = $.trim($('#student_id').val());
+                if (str != ''){
+                    if (!ex.test(str)) {
+                        alert("学号只接受数字");
+                        $("#student_id").focus();
+                        return false;
+                    }
+                    if (str.length > 13) {
+                        alert("学号超过13位");
+                        $("#student_id").focus();
+                        return false;
+                    }
+                }
+                ex = /^[\u4e00-\u9fa5\w()]+$/;
+                str = $.trim($('#course_name').val());
+                if (str != ''){
+                    if (!ex.test(str)) {
+                        alert("课程名字只能包括文字、数字、括号、下划线");
+                        $("#course_name").focus();
+                        return false;
+                    }
                 }
                 if (oTable == null){
                     oTable = $('#selection').dataTable( {
@@ -156,11 +174,11 @@
                         "ajax": {
                             "url": "{{ URL::to('admin/select/number_query_selection_data') }}",
                             "data": function ( d ) {
-                                d["student_id"]=$('#student_id').val();
+                                d["student_id"]=$.trim($('#student_id').val());
                                 d["major_classification"]= $('#major_classification').val()
                                 d["year"]=$('#year').val();
                                 d["semester"]= $('#semester').val();
-                                d["course_name"]=$('#course_name').val();
+                                d["course_name"]=$.trim($('#course_name').val());
                                 d["is_obligatory"]=$('#is_obligatory').val();
                             }
                         },

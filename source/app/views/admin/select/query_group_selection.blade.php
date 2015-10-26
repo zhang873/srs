@@ -25,7 +25,7 @@
         <select class="twidth" size="1" tabindex="1" name="group" id="group">
             <option value="全部" selected="selected">全部</option>
             @foreach ($groups as $group)
-                <option value="{{{ $group->id }}}"> {{{ $group->name }}} </option>
+                <option value="{{{ $group->gid }}}"> {{{ $group->gname }}} </option>
             @endforeach
         </select>
         <label class="rlbl" >{{ Lang::get('admin/select/title.group_num') }}</label>
@@ -169,6 +169,29 @@ div.DTTT{
                     $("#group").focus();
                     return false;
                 }
+                var ex = /^\d+$/;
+                var str = $.trim($('#group_num').val());
+                if (str != ''){
+                    if (!ex.test(str)) {
+                        alert("班号只接受数字");
+                        $("#group_num").focus();
+                        return false;
+                    }
+                    if (str.length > 15) {
+                        alert("班号超过15位");
+                        $("#group_num").focus();
+                        return false;
+                    }
+                }
+                ex = /^[\u4e00-\u9fa5\w()]+$/;
+                str = $.trim($('#course_name').val());
+                if (str != ''){
+                    if (!ex.test(str)) {
+                        alert("课程名字只能包括文字、数字、括号、下划线");
+                        $("#course_name").focus();
+                        return false;
+                    }
+                }
                 if (oTable == null){
                     oTable = $('#selection').dataTable( {
                         "searching":false,
@@ -195,12 +218,12 @@ div.DTTT{
                             "url": "{{ URL::to('admin/select/query_group_selection_data') }}",
                             "data": function ( d ) {
                                 d["group"]=$('#group').val();
-                                d["group_num"]=$('#group_num').val();
+                                d["group_num"]=$.trim($('#group_num').val());
                                 d["campus"]= $('#campus').val();
                                 d["major_classification"]= $('#major_classification').val()
                                 d["year"]=$('#year').val();
                                 d["semester"]= $('#semester').val();
-                                d["course_name"]=$('#course_name').val();
+                                d["course_name"]=$.trim($('#course_name').val());
                                 d["is_obligatory"]=$('#is_obligatory').val();
                                 d["selection_status"]=$('#selection_status').val();
                                 d["student_classification"]=$('#student_classification').val();
@@ -231,23 +254,12 @@ div.DTTT{
                 var campus_id = $('#campus').val();
                 $("#group").empty();
                 $("#group").append("<option value='全部'>全部</option>");
-
-                var jsonData = {
-                    "campus_id": campus_id
-                };
-                $.ajax({
-                    type: 'GET',
-                    url: '{{ URL::to('admin/select/campus_group') }}',
-                    async: true,
-                    dataType: "json",
-                    data: jsonData,
-                    success: function (json) {
-                        var obj = eval(json);
-                        for (var i=0; i<obj.length; i++){
-                            $("#group").append("<option value='" + obj[i].gid + "'>" + obj[i].gname + "</option>");
-                        }
+                var obj = eval({{$groups->toJson()}});
+                for (var i=0; i<obj.length; i++){
+                    if (campus_id == '全部' || obj[i].cid == campus_id){
+                        $("#group").append("<option value='" + obj[i].gid + "'>" + obj[i].gname + "</option>");
                     }
-                });
+                }
             });
 		});
 

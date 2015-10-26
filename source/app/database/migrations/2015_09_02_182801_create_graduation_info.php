@@ -20,7 +20,7 @@ class CreateGraduationInfo extends Migration {
                 $table->integer('student_id')->unsigned()->index();
                 $table->tinyinteger('is_applied');
                 $table->smallInteger('application_year');
-                $table->tinyInteger('application_ semester');
+                $table->tinyInteger('application_semester');
                 $table->smallInteger('graduation_year');
                 $table->tinyInteger('graduation_semester');
                 $table->tinyInteger('approval_status');

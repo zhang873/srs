@@ -111,9 +111,9 @@
 
 
     <table id="students" class="table table-striped table-hover">
+        <caption><h4>{{ Lang::get('admin/admissions/title.student_base_info_record') }}</h4></caption>
         <thead>
             <tr>
-
                 <th class="col-md-04"></th>
                 <th class="col-md-03">{{{ Lang::get('admin/admissions/table.student_name') }}}</th>
                 <th class="col-md-1">{{{ Lang::get('admin/admissions/table.student_id') }}}</th>

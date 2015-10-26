@@ -115,12 +115,10 @@
     </div>
 
     <div class="form-group" align="center">
-        <div class="col-md-offset-2 col-md-10">
-            <button id="btnQuery" class="btn btn-small btn-info" >
-                {{{ Lang::get('admin/select/title.query') }}}</button>
-            <button id="btnQueryDetail" class="btn btn-small btn-info" >
-                {{{ Lang::get('admin/select/title.detail_query') }}}</button>
-        </div>
+        <button id="btnQuery" class="btn btn-small btn-info" >
+            {{{ Lang::get('admin/select/title.query') }}}</button>
+        <button id="btnQueryDetail" class="btn btn-small btn-info" >
+            {{{ Lang::get('admin/select/title.detail_query') }}}</button>
     </div>
     <br><br><br><br>
 
@@ -277,14 +275,14 @@ div.DTTT{
                         d["semester"]= $('#semester').val();
                         d["campus"]= $('#campus').val();
                         d["major_classification"]= $('#major_classification').val();
-                        d["course_code"]=$('#course_code').val();
-                        d["course_name"]=$('#course_name').val();
+                        d["course_code"]=$.trim($('#course_code').val());
+                        d["course_name"]=$.trim($('#course_name').val());
                         d["major"]=$('#major').val();
                         d["is_obligatory"]=$('#is_obligatory').val();
                         d["year_in"]=$('#year_in').val();
                         d["semester_in"]= $('#semester_in').val();
                         d["selection_status"]=$('#selection_status').val();
-                        d["credit"]=$('#credit').val();
+                        d["credit"]=$.trim($("#credit").val());
                         d["student_classification"]=$('#student_classification').val();
                         d["type"]=type;
                     }
@@ -317,8 +315,45 @@ div.DTTT{
             $( tableTools.fnContainer() ).insertAfter('#btnQueryDetail');
             return rst;
         };
+        function checkInput(){
+            var ex = /^\d+$/;
+            var str = $.trim($('#course_code').val());
+            if (str != ''){
+                if (!ex.test(str)) {
+                    alert("课程编号只接受数字");
+                    $("#course_code").focus();
+                    return false;
+                }
+                if (str.length > 5) {
+                    alert("课程编号超过5位");
+                    $("#course_code").focus();
+                    return false;
+                }
+            }
+            ex = /^[\u4e00-\u9fa5\w()]+$/;
+            str = $.trim($('#course_name').val());
+            if (str != ''){
+                if (!ex.test(str)) {
+                    alert("课程名字只能包括文字、数字、括号、下划线");
+                    $("#course_name").focus();
+                    return false;
+                }
+            }
+            ex = /^[1-9]$/;
+            str = $.trim($("#credit").val());
+            if (str != ''){
+                if (!ex.test(str)) {
+                    alert("请输入学分，范围（1-9）");
+                    $("#credit").focus();
+                    return false;
+                }
+            }
+            return true;
+        }
 		$(document).ready(function() {
             $("#btnQuery").click(function(){
+                if(checkInput() == false)
+                    return false;
                 $('#tbCount').show();
                 if (tbCount == null){
                     var tab = $('#count');
@@ -328,6 +363,8 @@ div.DTTT{
                 }
             });
             $("#btnQueryDetail").click(function(){
+                if(checkInput() == false)
+                    return false;
                 $('#tbDetail').show();
                 if (tbDetail == null){
                     var tab = $('#detail');

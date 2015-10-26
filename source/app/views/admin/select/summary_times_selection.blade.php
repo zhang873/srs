@@ -160,6 +160,29 @@ div.DTTT{
         var z_majors = str.split("|");
 		$(document).ready(function() {
             $("#btnQuery").click(function(){
+                var ex = /^\d+$/;
+                var str = $.trim($('#course_code').val());
+                if (str != ''){
+                    if (!ex.test(str)) {
+                        alert("课程编号只接受数字");
+                        $("#course_code").focus();
+                        return false;
+                    }
+                    if (str.length > 5) {
+                        alert("课程编号超过5位");
+                        $("#course_code").focus();
+                        return false;
+                    }
+                }
+                ex = /^[\u4e00-\u9fa5\w()]+$/;
+                str = $.trim($('#course_name').val());
+                if (str != ''){
+                    if (!ex.test(str)) {
+                        alert("课程名字只能包括文字、数字、括号、下划线");
+                        $("#course_name").focus();
+                        return false;
+                    }
+                }
                 if (oTable == null){
                     oTable = $('#selection').dataTable( {
                         "searching":false,
@@ -189,8 +212,8 @@ div.DTTT{
                                 d["semester"]= $('#semester').val();
                                 d["major_classification"]= $('#major_classification').val()
                                 d["major"]= $('#major').val()
-                                d["course_code"]=$('#course_code').val();
-                                d["course_name"]=$('#course_name').val();
+                                d["course_code"]=$.trim($('#course_code').val());
+                                d["course_name"]=$.trim($('#course_name').val());
                                 d["selection_status"]=$('#selection_status').val();
                                 d["student_classification"]=$('#student_classification').val();
                             }

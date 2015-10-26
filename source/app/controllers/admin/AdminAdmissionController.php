@@ -254,10 +254,10 @@ class AdminAdmissionController extends AdminController
 
             ->select(DB::raw('@rownum:=@rownum+1 as rownum'), 'reward_info.reward_level',
                 'student_reward_punishment.date', 'student_reward_punishment.operator',
+                'student_reward_punishment.year', 'student_reward_punishment.semester',
                 'student_reward_punishment.approval_result');
         return Datatables::of($programs)
-            ->add_column('year', '', 4)
-            ->add_column('semester', '', 5)
+            ->edit_column('semester', '@if($semester == \'1\')春季@elseif($semester == \'2\')秋季@endif')
             ->edit_column('approval_result', function ($row) {
                 $rst = '';
                 switch ($row->approval_result) {
@@ -294,10 +294,10 @@ class AdminAdmissionController extends AdminController
             })
             ->select(DB::raw('@rownum:=@rownum+1 as rownum'), 'punishment_info.punishment',
                 'punishment_cause_info.punishment_cause', 'student_reward_punishment.date',
-                'student_reward_punishment.operator', 'student_reward_punishment.approval_result');
+                'student_reward_punishment.operator', 'student_reward_punishment.year',
+                'student_reward_punishment.semester', 'student_reward_punishment.approval_result');
         return Datatables::of($programs)
-            ->add_column('year', '', 5)
-            ->add_column('semester', '', 6)
+            ->edit_column('semester', '@if($semester == \'1\')春季@elseif($semester == \'2\')秋季@endif')
             ->edit_column('approval_result', function ($row) {
                 $rst = '';
                 switch ($row->approval_result) {
@@ -2164,7 +2164,6 @@ class AdminAdmissionController extends AdminController
         $major_classification = Input::get('major_classification');
         $degree_pass = Input::get('degree_pass');
 
-
         $query = DB::table('admissions')
             ->join('campuses', 'admissions.campuscode', '=', 'campuses.id')
             ->join('school_info', 'campuses.school_id', '=', 'school_info.school_id')
@@ -2194,10 +2193,7 @@ class AdminAdmissionController extends AdminController
         if (!is_null($degree_pass) && $degree_pass != "全部") {
             $query = $query->where('graduation_info.approval_status', $degree_pass);
         }
-
         $count = $query->count();
-
-
         return $count;
     }
 
@@ -2272,10 +2268,7 @@ class AdminAdmissionController extends AdminController
             $found = false;
             foreach($filesnames as $name){
                 $pos = strpos($name, $rst);
-                if ($pos === false){
-
-                }
-                else{
+                if ($pos !== false){
                     $found = true;
                     break;
                 }
@@ -2348,6 +2341,7 @@ class AdminAdmissionController extends AdminController
     public function postResultDetails()
     {
         $admissionIDs = explode(',', Input::get('selected_students'));
+        $type = Input::get('link_type');
         $query = AdmissionGroup::whereIn('admissions.id', $admissionIDs)
             ->join('groups', 'admission_group.group_id', '=', 'groups.id')
             ->join('admissions', 'admission_group.admission_id', '=', 'admissions.id')
@@ -2365,8 +2359,11 @@ class AdminAdmissionController extends AdminController
             'rawprograms.name as rname', 'campuses.sysid as csysid', 'campuses.name as cname',
             'groups.sysid as gsysid', 'groups.name as gname')->get()->toArray();
 
+        $dir = './photos';
+        $photo_names = scandir($dir);
+        $add_photo_names = array();
 
-        for($i = 0; $i < count ( $result ); $i ++) {
+        for ($i = 0; $i < count($result); $i++) {
             $result[$i]['order'] = $i + 1;
             if ($result[$i]['gender'] == 'm')
                 $result[$i]['gender'] = '男';
@@ -2384,6 +2381,18 @@ class AdminAdmissionController extends AdminController
                 $result[$i]['admissionsemester'] = '春季';
             else if ($result[$i]['admissionsemester'] == '02')
                 $result[$i]['admissionsemester'] = '秋季';
+            if ($type == 1)
+                $rst = $result[$i]['idnumber'];
+            else
+                $rst = $result[$i]['studentno'];
+
+            foreach ($photo_names as $name) {
+                $pos = strpos($name, $rst);
+                if ($pos !== false) {
+                    $add_photo_names[] = $name;
+                    break;
+                }
+            }
         }
 
         $filename = 'export_' . strftime('%Y%m%d');
@@ -2394,53 +2403,1077 @@ class AdminAdmissionController extends AdminController
                 $sheet->setColumnFormat(array('C' => '0'));
                 $sheet->setColumnFormat(array('E' => '0'));
                 $sheet->setColumnFormat(array('I' => '0'));
-                $sheet->loadView('admin/admissions/photo_export', array(
-                    'result' => $result
-                ));
+                $sheet->loadView('admin/admissions/photo_export', array('result' => $result));
             });
         });
 
         $excel_file = $excel->store('xls', false, true);
-        $file_path = './my.zip';
-        $zipFile = './photos/Sunset.jpg';
+        $file_path = 'photos.zip';
+
 
         $zip = new ZipArchive ();
-        if ($zip->open($file_path, ZIPARCHIVE::OVERWRITE) !== TRUE) {
+        if (file_exists($file_path) === true) {
+            $res = $zip->open($file_path, ZIPARCHIVE::OVERWRITE);
+        } else {
+            $res = $zip->open($file_path, ZIPARCHIVE::CREATE);
+        }
+        if ($res !== TRUE) {
             return;
         }
-        $zip_excel_name = 'File/'.basename($excel_file['full']);
-        $photo_name = 'Photo/' . basename($zipFile);
+        $zip_excel_name = 'File/' . basename($excel_file['full']);
 
         $zip->addFile($excel_file['full'], $zip_excel_name);
-        $zip->addFile($zipFile, $photo_name);
-        $zip->close();
-
-        $fp = fopen($file_path, "r");
-        $file_size = filesize($file_path);
-
-        header("Content-Type: application/zip");
-        header("Content-Length: " . filesize('my.zip'));
-        header("Content-Disposition: attachment; filename=\"my.zip\"");
-        readfile('my.zip');
-        /*
-//下载文件需要用到的头
-        Header("Content-type: application/octet-stream");
-        Header("Accept-Ranges: bytes");
-        Header("Accept-Length:" . $file_size);
-        Header("Content-Disposition: attachment; filename=" . $file_path);
-        $buffer = 1024;
-        $file_count = 0;
-//向浏览器返回数据
-        while (!feof($fp) && $file_count < $file_size) {
-            $file_con = fread($fp, $buffer);
-            $file_count += $buffer;
-            echo $file_con;
+        foreach ($add_photo_names as $add_photo_name) {
+            $zipFile = './photos/' . basename($add_photo_name);
+            $photo_name = 'Photo/' . basename($add_photo_name);
+            $zip->addFile($zipFile, $photo_name);
         }
-        fclose($fp);*/
+        $zip->close();
+        header("Content-Type: application/zip");
+        header("Content-Length: " . filesize($file_path));
+        header("Content-Disposition: attachment; filename=" . $file_path);
+        readfile($file_path);
     }
 
+    public function getApproveChangeAdmissionsIndexForProvince()
+    {
+        $title = Lang::get('admin/admissions/title.check_change_admissions');
+        $campuses = Campus::All();
+        $schools = School::All();
+        $rawprograms = RawProgram::All();
+        return View::make('admin/admissions/admissions_approve_change_province', compact('rawprograms', 'schools','campuses', 'title'));
+    }
+    public function getDataApproveChangingAdmissionsForProvince()
+    {
+        $filter = array();
+
+        $student_id = Input::get('student_id');
+        $student_name = Input::get('student_name');
+        $major_classification = Input::get('major_classification');
+        $major = Input::get('major');
+        $campus = Input::get('campus');
+        $school = Input::get('school');
+        $state = Input::get('state');
+        $flag = 0;
+        $ids = explode(',', Input::get('selectedAdmissions'));
 
 
+        if ($state == 1) {
+            if (!empty($ids)) {
+                DB::table('student_status_changing')->whereIn('id', $ids)
+                    ->update(array('approval_status' => 1));
+                DB::table('admissions')->join('student_status_changing', 'student_status_changing.student_id', '=', 'admissions.id')
+                    ->whereIn('student_status_changing.id', $ids)
+                    ->update(array('admissions.status' => 4));
+            }
+        }
+
+        if (!empty($student_id)) {
+            $filter["studentno"] = '%' . $student_id . '%';
+        }
+        if (!empty($student_name)) {
+            $filter["fullname"] = '%' . $student_name . '%';
+        }
+        if (!empty($campus)) {
+            $filter['campuscode'] = $campus;
+        }
 
 
+        if (!empty($major)) {
+            $filter['programcode'] = $major;
+        }
+        if (!empty($major_classification)) {
+            $filter['program'] = $major_classification;
+        }
+
+        if (!empty($school)) {
+            $school_ids = DB::table('school_info')->select('id')
+                ->where('id', $school)
+                ->lists('id');
+            $campus_ids = DB::table('campuses_school')->select('campuses_school.campus_id as id')
+                ->join('school_info', 'school_info.id', '=', 'campuses_school.school_id')
+                ->whereIn('campuses_school.school_id', $school_ids)
+                ->lists('id');
+            $flag = 1;
+
+        }
+
+        if ($flag == 1) {
+            $programs = DB::table('student_status_changing')
+                ->leftjoin('admissions', function ($join) {
+                    $join->on('student_status_changing.student_id', '=', 'admissions.id');
+                })
+                ->leftjoin('campuses', function ($join) {
+                    $join->on('admissions.campuscode', '=', 'campuses.id');
+                })
+                ->leftjoin('admission_group', function ($join) {
+                    $join->on('admission_group.admission_id', '=', 'admissions.id');
+                })
+                ->leftjoin('groups', function ($join) {
+                    $join->on('admission_group.group_id', '=', 'groups.id');
+                })
+                ->leftjoin('rawprograms', function ($join) {
+                    $join->on('admissions.programcode', '=', 'rawprograms.id');
+                })
+                ->whereIn('admissions.campuscode', $campus_ids)
+                //          ->where('student_status_changing.current_class_id', ">", 0)
+                ->where(function ($query) use ($filter) {
+                    if (!is_array($filter)) {
+                        return $query;
+                    }
+                    foreach ($filter as $key => $value) {
+                        $query = $query->where('admissions.' . $key, 'like', $value);
+                    }
+                    return $query;
+                })
+                ->select('student_status_changing.id', 'student_status_changing.application_year', 'student_status_changing.application_semester',
+                    'admissions.fullname as student_name', 'admissions.studentno as student_id', 'admissions.status',
+                    'student_status_changing.original_major_id', 'student_status_changing.current_major_id',
+                    'student_status_changing.original_campus_id', 'student_status_changing.current_campus_id',
+                    'student_status_changing.current_class_id', 'student_status_changing.cause',
+                    'student_status_changing.approval_status', 'student_status_changing.remark'
+                );
+        } else {
+            $programs = DB::table('student_status_changing')
+                ->leftjoin('admissions', function ($join) {
+                    $join->on('student_status_changing.student_id', '=', 'admissions.id');
+                })
+                ->leftjoin('campuses', function ($join) {
+                    $join->on('admissions.campuscode', '=', 'campuses.id');
+                })
+                ->leftjoin('admission_group', function ($join) {
+                    $join->on('admission_group.admission_id', '=', 'admissions.id');
+                })
+                ->leftjoin('groups', function ($join) {
+                    $join->on('admission_group.group_id', '=', 'groups.id');
+                })
+                ->leftjoin('rawprograms', function ($join) {
+                    $join->on('admissions.programcode', '=', 'rawprograms.id');
+                })
+                //          ->where('student_status_changing.current_class_id', ">", 0)
+                ->where(function ($query) use ($filter) {
+                    if (!is_array($filter)) {
+                        return $query;
+                    }
+                    foreach ($filter as $key => $value) {
+                        $query = $query->where('admissions.' . $key, 'like', $value);
+                    }
+                    return $query;
+                })
+                ->select('student_status_changing.id', 'student_status_changing.application_year', 'student_status_changing.application_semester',
+                    'admissions.fullname as student_name', 'admissions.studentno as student_id', 'admissions.status',
+                    'student_status_changing.original_major_id', 'student_status_changing.current_major_id',
+                    'student_status_changing.original_campus_id', 'student_status_changing.current_campus_id',
+                    'student_status_changing.current_class_id', 'student_status_changing.cause',
+                    'student_status_changing.approval_status', 'student_status_changing.remark'
+                );
+        }
+        return Datatables::of($programs)
+            ->edit_column('application_semester', '@if ($application_semester == \'02\')
+                                      秋季
+                                 @elseif ($application_semester == \'01\')
+                                      春季
+                                 @endif')
+            ->edit_column('status', '@if ($status == 0)
+                                      已录入
+                                 @elseif ($status == 1)
+                                      已上报
+                                 @elseif ($status == 2)
+                                      已审批
+                                 @elseif ($status == 3)
+                                      未注册
+                                 @elseif ($status == 4)
+                                      在籍
+                                 @elseif ($status == 5)
+                                      异动中
+                                 @elseif ($status == 6)
+                                      毕业
+                                 @elseif ($status == 7)
+                                      退学
+                                 @endif')
+            ->edit_column('approval_status', '@if ($approval_status == 0)
+                                      未审核
+                                 @elseif ($approval_status == 1)
+                                      同意
+                                 @elseif ($approval_status == 2)
+                                      不同意
+                                 @endif
+')
+            ->edit_column('original_major_id', '
+            @foreach ($programs=RawProgram::where(\'id\',$original_major_id)->get() as $program)
+                {{$program->name}}
+            @endforeach
+            ')
+            ->edit_column('current_major_id', '
+            @foreach ($programs=RawProgram::where(\'id\',$current_major_id)->get() as $program)
+               {{$program->name}}
+            @endforeach
+            ')
+            ->edit_column('original_campus_id', '
+            @foreach ($campuses=Campus::where(\'id\',$original_campus_id)->get() as $campus)
+                {{$campus->name}}
+            @endforeach
+            ')
+            ->edit_column('current_campus_id', '
+            @foreach ($campuses=Campus::where(\'id\',$current_campus_id)->get() as $campus)
+                {{$campus->name}}
+            @endforeach
+            ')
+            ->edit_column('current_class_id', '
+            @foreach ($groups=Groups::where(\'id\',$current_class_id)->get() as $group)
+                {{$group->name}}
+            @endforeach
+            ')
+            ->edit_column('remark', '<input type="text" id="remark" value="{{$remark}}" style="width: 100%;">')
+            ->add_column('actions', '<a href="javascript:void(0)" id="noPass" value="{{ $id }}">不同意</a><br>
+                                       <a href="javascript:void(0)" id="noCheck" value="{{ $id }}">未审核</a>'
+            )
+            ->add_column('isCheck', '
+                          <div align="center"><input type = "checkbox" name = "checkItem[]" id= "checkItem" value="{{ $id }}"></div> '
+            )
+            ->remove_column('id')
+            ->make();
+    }
+    public function getNoPassChangeForProvince()
+    {
+        $id = Input::get('id');
+        $remark = Input::get('remark');
+
+        DB::table('admissions')->join('student_status_changing', 'student_status_changing.student_id', '=', 'admissions.id')
+            ->where('student_status_changing.id', $id)
+            ->update(array('admissions.status' => 4,
+                'student_status_changing.approval_status' => 2,
+                'student_status_changing.remark' => $remark));
+        return 'ok';
+    }
+    public function getNoCheckChangeForProvince()
+    {
+        $id = Input::get('id');
+        DB::table('admissions')->join('student_status_changing', 'student_status_changing.student_id', '=', 'admissions.id')
+            ->where('student_status_changing.id', $id)
+            ->update(array('admissions.status' => 5,
+                'student_status_changing.approval_status' => 0));
+        return 'ok';
+    }
+
+    public function getIndexForApproveRewardPunishProvince()
+    {
+        $title = Lang::get('admin/admissions/title.approve_reward_punish');
+        $rawprograms = RawProgram::All();
+        $campuses = Campus::All();
+        $schools = School::All();
+        return View::make('admin/admissions/admissions_approve_reward_punish_province', compact('campuses','schools', 'rawprograms', 'title'));
+    }
+    public function getDataForApproveRewardPunishProvince()
+    {
+        $filter = array();
+        $student_id = Input::get('student_id');
+        $student_name = Input::get('student_name');
+        $major_classification = Input::get('major_classification');
+        $major = Input::get('major');
+        $campus = Input::get('campus');
+        $school = Input::get('school');
+        $year = Input::get('year');
+        $semester = Input::get('semester');
+        $state = Input::get('state');
+        $flag = 0;
+
+        $ids = explode(',',Input::get('selectedAdmissions'));
+        if ($state == 1) {
+            if (!empty($ids)) {
+                DB::table('student_reward_punishment')->whereIn('id', $ids)
+                    ->update(array('approval_result' => 1));
+            }
+        }
+
+        if (!empty($student_id)) {
+            $filter["studentno"] = '%' . $student_id . '%';
+        }
+        if (!empty($student_name)) {
+            $filter["fullname"] = '%' . $student_name . '%';
+        }
+        if (!empty($major)) {
+            $filter['programcode'] = $major;
+        }
+        if (!empty($major_classification)) {
+            $filter['program'] = $major_classification;
+        }
+        if (!empty($campus)) {
+            $filter['campuscode'] = $campus;
+        }
+        if (!empty($school)) {
+            $school_ids = DB::table('school_info')->select('id')
+                ->where('id',$school)
+                ->lists('id');
+            $campus_ids = DB::table('campuses_school')->select('campuses_school.campus_id as id')
+                ->join('school_info','school_info.id','=','campuses_school.school_id')
+                ->whereIn('campuses_school.school_id', $school_ids)
+                ->lists('id');
+            $flag = 1;
+        }
+
+        if ($flag == 1) {
+            $programs = DB::table('admissions')->whereIn('admissions.campuscode', $campus_ids)
+                ->leftjoin('rawprograms', function ($join) {
+                    $join->on('rawprograms.id', '=', 'admissions.programcode');
+                })
+                ->leftjoin('campuses', function ($join) {
+                    $join->on('campuses.id', '=', 'admissions.campuscode');
+                })
+                ->leftjoin('admission_details', function ($join) {
+                    $join->on('admission_details.admission_id', '=', 'admissions.id');
+                })
+                ->leftjoin('student_reward_punishment', function ($join) {
+                    $join->on('student_reward_punishment.student_id', '=', 'admissions.id');
+                })
+                ->leftjoin('reward_info', function ($join) {
+                    $join->on('student_reward_punishment.reward_level', '=', 'reward_info.code');
+                })
+                ->leftjoin('punishment_info', function ($join) {
+                    $join->on('student_reward_punishment.punishment', '=', 'punishment_info.code');
+                })
+                ->leftjoin('punishment_cause_info', function ($join) {
+                    $join->on('student_reward_punishment.punishment_cause', '=', 'punishment_cause_info.code');
+                })
+                ->where(function ($query) use ($filter) {
+                    if (!is_array($filter)) {
+                        return $query;
+                    }
+                    foreach ($filter as $key => $value) {
+                        $query = $query->where('admissions.'.$key, 'like', $value);
+                    }
+                    return $query;
+                })
+                ->where('admissions.status',4)
+                ->select('student_reward_punishment.id', 'admissions.fullname', 'admissions.studentno','campuses.name',
+                    'admissions.status','rawprograms.name as major_name','rawprograms.type', 'punishment_info.punishment',
+                    'punishment_cause_info.punishment_cause', 'reward_info.reward_level', 'student_reward_punishment.remark',
+                    'student_reward_punishment.document_id', 'student_reward_punishment.operator','student_reward_punishment.approval_result');
+
+        } elseif ($flag == 0) {
+            $programs = DB::table('admissions')
+                ->leftjoin('rawprograms', function ($join) {
+                    $join->on('rawprograms.id', '=', 'admissions.programcode');
+                })
+                ->leftjoin('campuses', function ($join) {
+                    $join->on('campuses.id', '=', 'admissions.campuscode');
+                })
+                ->leftjoin('admission_details', function ($join) {
+                    $join->on('admission_details.admission_id', '=', 'admissions.id');
+                })
+                ->leftjoin('student_reward_punishment', function ($join) {
+                    $join->on('student_reward_punishment.student_id', '=', 'admissions.id');
+                })
+                ->leftjoin('reward_info', function ($join) {
+                    $join->on('student_reward_punishment.reward_level', '=', 'reward_info.id');
+                })
+                ->leftjoin('punishment_info', function ($join) {
+                    $join->on('student_reward_punishment.punishment', '=', 'punishment_info.code');
+                })
+                ->leftjoin('punishment_cause_info', function ($join) {
+                    $join->on('student_reward_punishment.punishment_cause', '=', 'punishment_cause_info.code');
+                })
+                ->where('admissions.status',4)
+                ->where(function ($query) use ($filter) {
+                    if (!is_array($filter)) {
+                        return $query;
+                    }
+                    foreach ($filter as $key => $value) {
+                        $query = $query->where('admissions.'.$key, 'like', $value);
+                    }
+                    return $query;
+                })
+                ->select('student_reward_punishment.id', 'admissions.fullname', 'admissions.studentno','campuses.name',
+                    'admissions.status','rawprograms.name as major_name','rawprograms.type', 'punishment_info.punishment',
+                    'punishment_cause_info.punishment_cause', 'reward_info.reward_level', 'student_reward_punishment.remark',
+                    'student_reward_punishment.document_id', 'student_reward_punishment.operator','student_reward_punishment.approval_result');
+        }
+        return Datatables::of($programs)
+            ->edit_column('type', '@if ($type == 12)
+                                          本科
+                                 @elseif ($type == 14)
+                                          专科
+                                 @endif')
+            ->edit_column('status', '@if ($status == 4)
+                                       在籍
+                                 @endif')
+
+            ->edit_column('remark', '@if ($reward_level >0)
+                                       奖励
+                                 @else
+                                       处分
+                                 @endif')
+            /*->edit_column('major_name','<?php echo subStr($major_name,0,6)."..."?>')*/
+            ->edit_column('approval_result', '@if ($approval_result == 0)
+                                          未审核
+                                 @elseif ($approval_result == 1)
+                                          同意
+                                @elseif ($approval_result == 2)
+                                          不同意
+                                 @endif')
+            ->add_column('remark1', '<input type="text" id="remark" value="{{$remark}}" style="width: 60px;">')
+            ->add_column('actions', '<a href="javascript:void(0)" id="noPass" value="{{ $id }}">不同意</a><br>
+                                       <a href="javascript:void(0)" id="noCheck" value="{{ $id }}">未审核</a>'
+            )
+            ->add_column( 'isCheck', '
+                                  <div align="center"><input type = "checkbox" name = "checkItem[]"  id= "checkItem" value="{{$id}}"></div>
+                                   ')
+            ->remove_column('id')
+            ->make();
+    }
+    public function getApproveRewardPunishNoPass()
+    {
+        $id = Input::get('id');
+        $remark = Input::get('remark');
+        DB::table('student_reward_punishment')->where('id', $id)
+            ->update(array('approval_result' => 2, 'remark' => $remark));
+        return 'ok';
+    }
+    public function getApproveRewardPunishNoApprove()
+    {
+        $id = Input::get('id');
+        DB::table('student_reward_punishment')->where('id', $id)
+            ->update(array('approval_result' => 0));
+        return 'ok';
+    }
+
+    public function getApproveDropOutProvince()
+    {
+        $title = Lang::get('admin/admissions/title.approve_dropout');
+        $campuses = Campus::All();
+        $majors = RawProgram::All();
+        return View::make('admin/admissions/admissions_approve_dropout_province', compact('majors', 'campuses', 'title'));
+    }
+    public function getDataApproveDropOutProvince()
+    {
+        $ids = explode(',',Input::get('selectedAdmissions'));
+        $filter = array();
+        $student_id = Input::get('student_id');
+        $student_name = Input::get('student_name');
+        $major_classification = Input::get('major_classification');
+        $major = Input::get('major');
+        $campus = Input::get('campus');
+        $state = Input::get('state');
+
+        if (!empty($student_id)) {
+            $filter["studentno"] = '%' . $student_id . '%';
+        }
+        if (!empty($student_name)) {
+            $filter["fullname"] = '%' . $student_name . '%';
+        }
+        if (!empty($campus)) {
+            $filter['campuscode'] = $campus;
+        }
+        if (!empty($major)) {
+            $filter['programcode'] = $major;
+        }
+        if (!empty($major_classification)) {
+            $filter['program'] = $major_classification;
+        }
+
+        if($state == 1) {
+            if (!empty($ids)) {
+                DB::table('admissions')
+                    ->join('student_dropout', 'student_dropout.student_id', '=', 'admissions.id')
+                    ->whereIn('student_dropout.id', $ids)
+                    ->update(array('admissions.status' => 7, 'student_dropout.approval_result_province' => 1));
+            }
+            //DB::table('student_dropout')->whereIn('id',$ids)->update(array('approval_result_province'=>1));
+        }
+
+        $dropout_stu_ids = DB::table('student_dropout')->select('student_id as id')->lists('id');
+        $programs = DB::table('admissions')
+
+            ->whereIn('admissions.id',$dropout_stu_ids)
+            ->leftjoin('rawprograms', function ($join) {
+                $join->on('rawprograms.id', '=', 'admissions.programcode');
+            })
+            ->leftjoin('campuses', function ($join) {
+                $join->on('admissions.campuscode', '=', 'campuses.id');
+            })
+            ->leftjoin('student_dropout', function ($join) {
+                $join->on('student_dropout.student_id', '=', 'admissions.id');
+            })
+            ->where(function ($query) use ($filter) {
+                if (!is_array($filter)) {
+                    return $query;
+                }
+                foreach ($filter as $key => $value) {
+                    $query = $query->where('admissions.'.$key, 'like', $value);
+                }
+                return $query;
+            })
+            ->where('student_dropout.is_deleted',0)
+            ->select('student_dropout.id', 'student_dropout.application_year',
+                'student_dropout.application_semester', 'admissions.fullname',
+                'admissions.studentno', 'admissions.status', 'admissions.program',
+                'rawprograms.name as pname', 'student_dropout.cause',
+                'student_dropout.approval_result_province', 'student_dropout.approval_suggestion_province');
+
+        return Datatables::of($programs)
+            ->edit_column('program', '@if ($program == 12)
+                                          本科
+                                 @elseif ($program == 14)
+                                          专科
+                                 @endif')
+            ->edit_column('application_semester', '@if ($application_semester == \'02\')
+                                      秋季
+                                 @elseif ($application_semester == \'01\')
+                                      春季
+                                 @endif')
+            ->edit_column('status', '@if ($status == 0)
+                                      已录入
+                                 @elseif ($status == 1)
+                                      已上报
+                                 @elseif ($status == 2)
+                                      已审批
+                                 @elseif ($status == 3)
+                                      未注册
+                                 @elseif ($status == 4)
+                                      在籍
+                                 @elseif ($status == 5)
+                                      异动中
+                                 @elseif ($status == 6)
+                                      毕业
+                                 @elseif ($status == 7)
+                                      退学
+                                 @endif')
+            ->edit_column('approval_result_province', '@if ($approval_result_province == 0)
+                                          未审核
+                                 @elseif ($approval_result_province == 1)
+                                          同意
+                                 @elseif ($approval_result_province == 2)
+                                          不同意
+                                 @endif')
+            ->edit_column('approval_suggestion_province', '
+                                <input type="text" id="approval_suggestion_province" value="{{$approval_suggestion_province}}" style="width: 60px">
+            ')
+            ->add_column('actions', '<a href="javascript:void(0)" id="noPass" value="{{ $id }}">不同意</a><br>
+                                       <a href="javascript:void(0)" id="noCheck" value="{{ $id }}">未审核</a>'
+            )
+            ->add_column( 'isCheck', '
+                                  <div align="center"><input type = "checkbox" name = "checkItem[]"  id= "checkItem" value="{{$id}}"></div>
+                                   ')
+            ->remove_column('id')
+            ->make();
+
+    }
+    public function getNoPassDropOutForProvince()
+    {
+        $id = Input::get('id');
+        $remark = Input::get('remark');
+        DB::table('admissions')->join('student_dropout','student_dropout.student_id','=','admissions.id')
+            ->where('student_dropout.id',$id)
+            ->update(array('admissions.status' => 4,
+                'student_dropout.approval_result_province' => 2,
+                'student_dropout.approval_suggestion_province' => $remark));
+        return 'ok';
+    }
+    public function getNoApproveDropOutForProvince()
+    {
+        $id = Input::get('id');
+        DB::table('admissions')->join('student_dropout','student_dropout.student_id','=','admissions.id')
+            ->where('student_dropout.id',$id)
+            ->update(array('admissions.status' => 4,
+                'student_dropout.approval_result_province' => 0));
+        return 'ok';
+    }
+
+    public function getApproveRecoveryApplicationProvince()
+    {
+        $title = Lang::get('admin/admissions/title.check_recovery_admissions_application');
+        $campuses = Campus::All();
+        $rawprograms = RawProgram::All();
+        $schools = School::All();
+        return View::make('admin/admissions/admissions_approve_recovery_province', compact('schools','rawprograms', 'campuses', 'title'));
+    }
+    public function getDataApproveRecoveryApplicationProvince()
+    {
+        $ids = explode(',',Input::get('selectedAdmissions'));
+        $filter = array();
+        $filter_recovery = array();
+        $student_ids = array();
+        $school = Input::get('school');
+        $campus = Input::get('campus');
+        $student_name = Input::get('student_name');
+        $student_id = Input::get('student_id');
+        $student_type = Input::get('student_type');
+        $major_classification = Input::get('major_classification');
+        $admissionyear = Input::get('admissionyear');
+        $admissionsemester = Input::get('admissionsemester');
+        $application_year = Input::get('application_year');
+        $application_semester = Input::get('application_semester');
+        $major = Input::get('major');
+        $state = Input::get('state');
+        $select_id=Input::get('btnID');
+        $flag = 0 ;
+        if (!empty($student_id)) {
+            $filter["studentno"] = '%' . $student_id . '%';
+        }
+        if (!empty($student_name)) {
+            $filter["fullname"] = '%' . $student_name . '%';
+        }
+        if (!empty($campus)) {
+            $filter['campuscode'] = $campus;
+        }
+        if (!empty($major)) {
+            $filter['programcode'] = $major;
+        }
+        if (!empty($major_classification)) {
+            $filter['program'] = $major_classification;
+        }
+
+        if (!empty($admissionyear)) {
+            $filter["admissionyear"] = $admissionyear;
+        }
+        if (!empty($admissionsemester)) {
+            $filter["admissionsemester"] = $admissionsemester;
+        }
+
+        if (!empty($student_type)) {
+            $filter['enrollmenttype'] = $student_type;
+        }
+        if (!empty($application_year)) {
+            $filter_recovery['recovery_year'] = $application_year;
+        }
+        if (!empty($application_semester)) {
+            $filter_recovery['recovery_semester'] = $application_semester;
+        }
+
+        if($state == 1){
+            if (!empty($ids)) {
+                DB::table('admissions')
+                    ->join('student_recovery','student_recovery.student_id','=','admissions.id')
+                    ->whereIn('student_recovery.id', $ids)
+                    ->update(array('admissions.status' => 4));
+            }
+            DB::table('student_recovery')->whereIn('id',$ids)->update(array('approval_result'=>1));
+        }
+
+        if (!empty($filter_recovery)) {
+            $student_ids = DB::table('student_recovery')->select('student_id as id')
+                ->where(function ($query) use ($filter_recovery) {
+                    if (!is_array($filter_recovery)) {
+                        return $query;
+                    }
+                    foreach ($filter_recovery as $key => $value) {
+                        $query = $query->where($key, 'like', $value);
+                    }
+                    return $query;
+                })
+                ->lists('id');
+            $flag = 1;
+        }else{
+            $student_ids = DB::table('student_recovery')->select('student_id as id')->lists('id');
+            $flag = 1;
+        }
+
+        if ($flag == 1){
+            $programs = DB::table('admissions')
+                ->whereIn('admissions.id',$student_ids)
+                ->leftjoin('rawprograms', function ($join) {
+                    $join->on('rawprograms.id', '=', 'admissions.programcode');
+                })
+                ->leftjoin('campuses', function ($join) {
+                    $join->on('admissions.campuscode', '=', 'campuses.id');
+                })
+                ->leftjoin('student_recovery', function ($join) {
+                    $join->on('student_recovery.student_id', '=', 'admissions.id');
+                })
+                ->where(function ($query) use ($filter) {
+                    if (!is_array($filter)) {
+                        return $query;
+                    }
+                    foreach ($filter as $key => $value) {
+                        $query = $query->where('admissions.'.$key, 'like', $value);
+                    }
+                    return $query;
+                })
+                ->where('student_recovery.is_deleted',0)
+                ->select('student_recovery.id', 'student_recovery.recovery_year',
+                    'student_recovery.recovery_semester', 'admissions.fullname',
+                    'admissions.studentno', 'campuses.name as cname','admissions.program','rawprograms.name as pname',
+                    'admissions.admissionyear','admissions.admissionsemester',
+                    'admissions.status', 'student_recovery.approval_result',
+                    'student_recovery.remark');
+        }else{
+            $programs = DB::table('admissions')
+                ->leftjoin('rawprograms', function ($join) {
+                    $join->on('rawprograms.id', '=', 'admissions.programcode');
+                })
+                ->leftjoin('campuses', function ($join) {
+                    $join->on('admissions.campuscode', '=', 'campuses.id');
+                })
+                ->leftjoin('student_recovery', function ($join) {
+                    $join->on('student_recovery.student_id', '=', 'admissions.id');
+                })
+                ->where(function ($query) use ($filter) {
+                    if (!is_array($filter)) {
+                        return $query;
+                    }
+                    foreach ($filter as $key => $value) {
+                        $query = $query->where('admissions.'.$key, 'like', $value);
+                    }
+                    return $query;
+                })
+                ->where('student_recovery.is_deleted',0)
+                ->select('student_recovery.id', 'student_recovery.recovery_year',
+                    'student_recovery.recovery_semester', 'admissions.fullname',
+                    'admissions.studentno', 'campuses.name as cname','admissions.program','rawprograms.name as pname',
+                    'admissions.admissionyear','admissions.admissionsemester',
+                    'admissions.status', 'student_recovery.approval_result',
+                    'student_recovery.remark');
+        }
+        return Datatables::of($programs)
+            ->edit_column('program', '@if ($program == 12)
+                                          本科
+                                 @elseif ($program == 14)
+                                          专科
+                                 @endif')
+            ->edit_column('recovery_semester', '@if ($recovery_semester == \'02\')
+                                      秋季
+                                 @elseif ($recovery_semester == \'01\')
+                                      春季
+                                 @endif')
+            ->edit_column('admissionsemester', '@if ($admissionsemester == \'02\')
+                                      秋季
+                                 @elseif ($admissionsemester == \'01\')
+                                      春季
+                                 @endif')
+            ->edit_column('status', '@if ($status == 0)
+                                      已录入
+                                 @elseif ($status == 1)
+                                      已上报
+                                 @elseif ($status == 2)
+                                      已审批
+                                 @elseif ($status == 3)
+                                      未注册
+                                 @elseif ($status == 4)
+                                      在籍
+                                 @elseif ($status == 5)
+                                      异动中
+                                 @elseif ($status == 6)
+                                      毕业
+                                 @elseif ($status == 7)
+                                      退学
+                                 @endif')
+            ->edit_column('approval_result', '@if ($approval_result == 0)
+                                          未审核
+                                 @elseif ($approval_result == 1)
+                                          同意
+                                 @elseif ($approval_result == 2)
+                                          不同意
+                                 @endif')
+            ->edit_column('remark', '<input type="text" id="remark" value="{{$remark}}" style="width: 100%;">')
+            ->add_column('actions', '<a href="javascript:void(0)" id="noPass" value="{{ $id }}">不同意</a><br>
+                                       <a href="javascript:void(0)" id="noCheck" value="{{ $id }}">未审核</a>'
+            )
+            ->add_column( 'isCheck', '
+                                  <div align="center"><input type = "checkbox" name = "checkItem[]"  id= "checkItem" value="{{$id}}"></div>
+                                   ')
+            ->remove_column('id')
+            ->make();
+    }
+    public function getNoPassRecoveryForProvince()
+    {
+        $id = Input::get('id');
+        $remark = Input::get('remark');
+        DB::table('student_recovery')->where('id', $id)
+            ->update(array('approval_result' => 2, 'remark' => $remark));
+        return 'ok';
+    }
+    public function getNoApproveRecoveryForProvince()
+    {
+        $id = Input::get('id');
+        DB::table('student_recovery')->where('id', $id)
+            ->update(array('approval_result' => 0));
+        return 'ok';
+    }
+
+    public function getAdmissionChangeAppointGroup()
+    {
+        $title = Lang::get('admin/admissions/title.change_admissions_appoint_group');
+        $user_id = Auth::user()->id;
+        //$user_id = 186;
+        $campus = DB::table('campuses')->where('userID', $user_id)->first();
+        return View::make('admin/admissions/admissions_change_appoint_group', compact('campus', 'title'));
+    }
+    public function getDataChangeAdmissionsForAppointGroup()
+    {
+        $campus = DB::table ( 'campuses' )->where ( 'userID', Auth::user ()->id )->first ();
+        $ids = explode(',',Input::get('selectedIds'));
+        $group = explode(',',Input::get('selectedGroup'));
+        $state = Input::get('state');
+
+        if ($state == 2) {
+            for ($i = 1; $i < count($ids); $i++) {
+                if ($group[$i] > 0) {
+                    DB::table('student_status_changing')->where('id', $ids[$i])->update(array('current_class_id' => $group[$i]));
+                }
+            }
+        }
+        $student_ids = DB::table('student_status_changing')->where('current_campus_id',$campus->id)->select('student_id as id')->lists('id');
+        $admissions = DB::table('student_status_changing')
+            ->join('admissions', function ($join) {
+                $join->on('student_status_changing.student_id', '=', 'admissions.id');
+            })
+            ->leftjoin('admission_group', function ($join) {
+                $join->on('admission_group.admission_id', '=', 'admissions.id');
+            })
+            ->leftjoin('groups', function ($join) {
+                $join->on('admission_group.group_id', '=', 'groups.id');
+            })
+            ->leftjoin('rawprograms', function ($join) {
+                $join->on('rawprograms.id', '=', 'admissions.programcode');
+            })
+            ->leftjoin('campuses', function ($join) {
+                $join->on('admissions.campuscode', '=', 'campuses.id');
+            })
+            ->where('student_status_changing.current_campus_id',$campus->id)
+            ->where('admissions.status',5)
+            ->select('student_status_changing.id', 'admissions.id as select', 'admissions.studentno',
+                'admissions.fullname', 'admissions.program', 'admissions.status', 'groups.sysid',
+                'groups.name as gname', 'rawprograms.name as major_name', 'rawprograms.type',
+                'admissions.nationgroup', 'admissions.politicalstatus', 'admissions.maritalstatus',
+                'admissions.jiguan', 'admissions.hukou', 'admissions.distribution',
+                'admissions.is_serving', 'student_status_changing.current_class_id');
+        return Datatables::of($admissions)
+            ->edit_column('select', '
+                <input type="checkbox" id="checkItem" name="checkItem[]" value="{{$id}}">
+            ')
+            ->edit_column('program', '@if ($program == 12)
+                                          本科
+                                 @elseif ($program == 14)
+                                          专科
+                                 @endif')
+            ->edit_column('status', '@if ($status == 0)
+                                      已录入
+                                 @elseif ($status == 1)
+                                      已上报
+                                 @elseif ($status == 2)
+                                      已审批
+                                 @elseif ($status == 3)
+                                      未注册
+                                 @elseif ($status == 4)
+                                      在籍
+                                 @elseif ($status == 5)
+                                      异动中
+                                 @elseif ($status == 6)
+                                      毕业
+                                 @elseif ($status == 7)
+                                      退学
+                                 @endif')
+            ->edit_column('type', '@if ($type == 12)
+                                          本科
+                                 @elseif ($type == 14)
+                                          专科
+                                 @endif')
+            ->edit_column('gname', '<select id="group" name="group[]" style="width:100%;">
+                                        <option value="">请选择</option>
+                                        @foreach( ($groups = Groups::leftjoin(\'programs\', \'programs.id\', \'=\', \'groups.programs_id\')
+                                        ->leftjoin(\'campuses\',\'campuses.id\',\'=\',\'programs.campus_id\')
+                                         ->where(\'campuses.userID\', \'=\', Auth::user ()->id)
+                                         ->select(\'groups.id as gid\',\'groups.name as gname\')
+                                         ->get())  as $group)
+                                            @if ($group->gid == $current_class_id)
+                                            <option value="{{$group->gid}}" selected="selected">{{$group->gname}}</option>
+                                            @else
+                                            <option value="{{$group->gid}}">{{$group->gname}}</option>
+                                            @endif
+                                        @endforeach
+                                    </select>
+            ')
+            ->edit_column('maritalstatus', '@if ($maritalstatus == 0)
+                                          未婚
+                                 @elseif ($maritalstatus == 1)
+                                          已婚
+                                 @endif')
+            ->edit_column('hukou', '@if ($hukou == 0)
+                            城镇户口
+                        @elseif ($hukou == 1)
+                            农村户口
+                        @elseif ($hukou == 2)
+                            外国公民
+                        @elseif ($hukou == 3)
+                            其他
+                        @endif
+            ')
+            ->edit_column('politicalstatus', '@if($politicalstatus == 1)
+                                            中共党员
+                                        @elseif($politicalstatus == 2)
+                                            共青团员
+                                        @elseif($politicalstatus == 3)
+                                            民革会员
+                                        @elseif($politicalstatus == 4)
+                                            民盟盟员
+                                        @elseif($politicalstatus == 5)
+                                            民进会员
+                                        @elseif($politicalstatus == 6)
+                                            民建会员
+                                        @elseif($politicalstatus == 7)
+                                            农工党党员
+                                        @elseif($politicalstatus == 8)
+                                            致公党党员
+                                        @elseif($politicalstatus == 9)
+                                            九三学社社员
+                                        @elseif($politicalstatus == 10)
+                                            台盟盟员
+                                        @elseif($politicalstatus == 11)
+                                            无党派民主人士
+                                        @elseif($politicalstatus == 12)
+                                            群众
+                                        @elseif($politicalstatus == 13)
+                                            其他
+                                        @endif
+                                 ')
+            ->edit_column('nationgroup', '@if ($nationgroup==1)
+                                        汉族
+                                     @elseif ($nationgroup==2)
+                                        蒙古族
+                                     @elseif ($nationgroup==3)
+                                        回族
+                                     @elseif ($nationgroup==4)
+                                        藏族
+                                     @elseif ($nationgroup==5)
+                                        维吾尔族
+                                     @elseif ($nationgroup==6)
+                                        苗族
+                                     @elseif ($nationgroup==7)
+                                        彝族
+                                     @elseif ($nationgroup==8)
+                                        壮族
+                                     @elseif ($nationgroup==9)
+                                        布依族
+                                     @elseif ($nationgroup==10)
+                                        朝鲜族
+                                     @elseif ($nationgroup==11)
+                                        满族
+                                     @elseif ($nationgroup==12)
+                                        侗族
+                                     @elseif ($nationgroup==13)
+                                        瑶族
+                                     @elseif ($nationgroup==14)
+                                        白族
+                                     @elseif ($nationgroup==15)
+                                        土家族
+                                     @elseif ($nationgroup==16)
+                                        哈尼族
+                                     @elseif ($nationgroup==17)
+                                        哈萨克族
+                                     @elseif ($nationgroup==18)
+                                        傣族
+                                     @elseif ($nationgroup==19)
+                                        黎族
+                                     @elseif ($nationgroup==20)
+                                        傈僳族
+                                     @elseif ($nationgroup==21)
+                                        佤族
+                                     @elseif ($nationgroup==22)
+                                        畲族
+                                     @elseif ($nationgroup==23)
+                                        高山族
+                                     @elseif ($nationgroup==24)
+                                        拉祜族
+                                     @elseif ($nationgroup==25)
+                                        水族
+                                     @elseif ($nationgroup==26)
+                                        东乡族
+                                     @elseif ($nationgroup==27)
+                                        纳西族
+                                     @elseif ($nationgroup==28)
+                                        景颇族
+                                     @elseif ($nationgroup==29)
+                                        柯尔克孜族
+                                     @elseif ($nationgroup==30)
+                                        土族
+                                     @elseif ($nationgroup==31)
+                                        达斡尔族
+                                     @elseif ($nationgroup==32)
+                                        仫佬族
+                                     @elseif ($nationgroup==33)
+                                        羌族
+                                     @elseif ($nationgroup==34)
+                                        布朗族
+                                     @elseif ($nationgroup==35)
+                                        撒拉族
+                                     @elseif ($nationgroup==36)
+                                        毛南族
+                                     @elseif ($nationgroup==37)
+                                        仡佬族
+                                     @elseif ($nationgroup==38)
+                                        锡伯族
+                                     @elseif ($nationgroup==39)
+                                        阿昌族
+                                     @elseif ($nationgroup==40)
+                                        普米族
+                                     @elseif ($nationgroup==41)
+                                        塔吉克族
+                                     @elseif ($nationgroup==42)
+                                        怒族
+                                     @elseif ($nationgroup==43)
+                                        乌孜别克族
+                                     @elseif ($nationgroup==44)
+                                        俄罗斯族
+                                     @elseif ($nationgroup==45)
+                                        鄂温克族
+                                     @elseif ($nationgroup==46)
+                                        崩龙族
+                                     @elseif ($nationgroup==47)
+                                        保安族
+                                     @elseif ($nationgroup==48)
+                                        裕固族
+                                     @elseif ($nationgroup==49)
+                                        京族
+                                     @elseif ($nationgroup==50)
+                                        塔塔尔族
+                                     @elseif ($nationgroup==51)
+                                           独龙族
+                                     @elseif ($nationgroup==52)
+                                        鄂伦春族
+                                     @elseif ($nationgroup==53)
+                                        赫哲族
+                                     @elseif ($nationgroup==54)
+                                        门巴族
+                                     @elseif ($nationgroup==55)
+                                        珞巴族
+                                     @elseif ($nationgroup==56)
+                                        基诺族
+                                     @elseif ($nationgroup==97)
+                                        其它
+                                     @elseif ($nationgroup==98)
+                                        外国血统中国籍人士\';
+                       @endif
+                       ')
+            ->edit_column('distribution','@if ($distribution == 0)
+                                      城镇应届
+                                 @elseif ($distribution == 1)
+                                      农村应届
+                                 @elseif ($distribution == 2)
+                                      城镇往届
+                                 @elseif ($distribution == 3)
+                                      农村往届
+                                 @elseif ($distribution == 4)
+                                      工人
+                                 @elseif ($distribution == 5)
+                                      干部
+                                 @elseif ($distribution == 6)
+                                      服役军人
+                                 @elseif ($distribution == 7)
+                                      台籍青年
+                                 @elseif ($distribution == 8)
+                                      港澳台侨
+                                 @elseif ($distribution == 9)
+                                      其他
+                                 @endif
+           ')
+            ->edit_column('is_serving','@if ($is_serving == 0)
+                                      不在职
+                                    @elseif ($is_serving == 1)
+                                      在职
+                                      @endif
+            ')
+            ->remove_column('current_class_id')
+            ->make();
+
+    }
 }

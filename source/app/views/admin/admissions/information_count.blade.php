@@ -1,4 +1,4 @@
-﻿@extends('admin.layouts.default')
+@extends('admin.layouts.default')
 
 {{-- Web site Title --}}
 @section('title')
@@ -57,6 +57,7 @@
                     <option value="02">秋季</option>
                     <option value="01">春季</option>
                 </select>
+            </td>
         </tr>
         <tr>
             <th class="col-md-1 width150">{{{ Lang::get('admin/admissions/table.school') }}}</th>
@@ -79,21 +80,21 @@
             </td>
         </tr>
         <tr>
-             <th class="col-md-1 width150">{{{ Lang::get('admin/admissions/table.admissions') }}}</th>
-             <td class="width150 col-md-1">
-                    <select name="admission_state" id="admission_state" class="twidth">
-                        <option value="全部">全部</option>
-                        <option value="0">已录入数据</option>
-                        <option value="1">已上报省校</option>
-                        <option value="2">省校已审批</option>
-                        <option value="3">未注册</option>
-                        <option value="4">在籍</option>
-                        <option value="5">异动中</option>
-                        <option value="6">毕业</option>
-                        <option value="7">退学</option>
-                    </select>
+        <th class="col-md-1 width150">{{{ Lang::get('admin/admissions/table.admissions') }}}</th>
+            <td class="width150 col-md-1">
+            <select name="admission_state" id="admission_state" class="twidth">
+                <option value="全部">全部</option>
+                <option value="0">已录入数据</option>
+                <option value="1">已上报省校</option>
+                <option value="2">省校已审批</option>
+                <option value="3">未注册</option>
+                <option value="4">在籍</option>
+                <option value="5">异动中</option>
+                <option value="6">毕业</option>
+                <option value="7">退学</option>
+            </select>
+            </td>
 
-                </td>
              <th class="col-md-1 width150">{{{ Lang::get('admin/admissions/table.gender') }}}</th>
              <td class="width150 col-md-1">
                       <select size="1"  name="gender" id="gender" class="twidth">
@@ -101,7 +102,7 @@
                           <option value="m">男</option>
                           <option value="f">女</option>
                       </select>
-                  </td>
+              </td>
         </tr>
         <tr>
              <th class="col-md-1 width150">{{{ Lang::get('admin/admissions/table.former_level') }}}</th>
@@ -343,7 +344,32 @@
                     "sButtonText": "{{{ Lang::get('admin/admissions/title.export_excel') }}}",
                     "sButtonClass":"btn btn-small btn-info",
                     "sFileName": "{{{ Lang::get('admin/admissions/title.admissions_information_count') }}}.xls",
-                    "mColumns": "visible"
+                    "mColumns": "visible",
+                    "fnClick": function( nButton, oConfig, flash ) {
+                        var obj = this;
+                        var regex = new RegExp(oConfig.sFieldBoundary, "g"); /* Do it here for speed */
+
+                        var aRow, aData=[];
+
+                        $("#count tr").each(function(i) {
+                            if (i == 0) {
+                                aRow = [];
+                                $(this).children("th").each(function(){
+                                    aRow.push(obj._fnBoundData( $(this).text(), oConfig.sFieldBoundary, regex));
+                                });
+                                aData.push( aRow.join(oConfig.sFieldSeperator) );
+                            }
+                            else if (i > 0) {
+                                aRow = [];
+                                $(this).children("td").each(function(){
+                                    aRow.push(obj._fnBoundData( $(this).text(), oConfig.sFieldBoundary, regex));
+                                });
+                                aData.push( aRow.join(oConfig.sFieldSeperator) );
+                            }
+                        });
+                        var str = aData.join( this._fnNewline(oConfig) );
+                        this.fnSetText( flash, str);
+                    }
                 }
             ]
         } );

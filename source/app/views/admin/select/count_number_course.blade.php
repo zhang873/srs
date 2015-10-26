@@ -33,7 +33,7 @@
         <select class="twidth" size="1" tabindex="2" name="group" id="group">
             <option value="全部" selected="selected">全部</option>
             @foreach ($groups as $group)
-                <option value="{{{ $group->id }}}"> {{{ $group->name }}} </option>
+                <option value="{{{ $group->gid }}}"> {{{ $group->gname }}} </option>
             @endforeach
         </select>
     </div>
@@ -146,24 +146,33 @@ div.DTTT{
 		$(document).ready(function() {
 
             $("#btnQuery").click(function(){
-                /*
-                var ex = /^[1-9]\d{3}$/;
-                var str = $("#year").val();
-                if (!ex.test(str)) {
-                    alert("请输入选课年度（4位数字）");
-                    $("#year").focus();
-                    return false;
-                }
-                str = $("#semester").val();
-                if (str=='3') {
-                    alert("请选择选课学期");
-                    $("#semester").focus();
-                    return false;
-                }*/
                 if ($('#course_code').val() == '' && $('#course_name').val() == '') {
                     alert("课程编号或课程名称必须填写");
                     $("#course_code").focus();
                     return false;
+                }
+                var ex = /^\d+$/;
+                var str = $.trim($('#course_code').val());
+                if (str != ''){
+                    if (!ex.test(str)) {
+                        alert("课程编号只接受数字");
+                        $("#course_code").focus();
+                        return false;
+                    }
+                    if (str.length > 5) {
+                        alert("课程编号超过5位");
+                        $("#course_code").focus();
+                        return false;
+                    }
+                }
+                ex = /^[\u4e00-\u9fa5\w()]+$/;
+                str = $.trim($('#course_name').val());
+                if (str != ''){
+                    if (!ex.test(str)) {
+                        alert("课程名字只能包括文字、数字、括号、下划线");
+                        $("#course_name").focus();
+                        return false;
+                    }
                 }
                 if (oTable == null){
                     oTable = $('#selection').dataTable( {
@@ -194,8 +203,8 @@ div.DTTT{
                                 d["group"]=$('#group').val();
                                 d["year"]=$('#year').val();
                                 d["semester"]= $('#semester').val();
-                                d["course_code"]=$('#course_code').val();
-                                d["course_name"]=$('#course_name').val();
+                                d["course_code"]=$.trim($('#course_code').val());
+                                d["course_name"]=$.trim($('#course_name').val());
                                 d["is_obligatory"]=$('#is_obligatory').val();
                             }
                         },
@@ -224,23 +233,12 @@ div.DTTT{
                 var campus_id = $('#campus').val();
                 $("#group").empty();
                 $("#group").append("<option value='全部'>全部</option>");
-
-                var jsonData = {
-                    "campus_id": campus_id
-                };
-                $.ajax({
-                    type: 'GET',
-                    url: '{{ URL::to('admin/select/campus_group') }}',
-                    async: true,
-                    dataType: "json",
-                    data: jsonData,
-                    success: function (json) {
-                        var obj = eval(json);
-                        for (var i=0; i<obj.length; i++){
-                            $("#group").append("<option value='" + obj[i].gid + "'>" + obj[i].gname + "</option>");
-                        }
+                var obj = eval({{$groups->toJson()}});
+                for (var i=0; i<obj.length; i++){
+                    if (campus_id == '全部' || obj[i].cid == campus_id){
+                        $("#group").append("<option value='" + obj[i].gid + "'>" + obj[i].gname + "</option>");
                     }
-                });
+                }
             });
 
 		});

@@ -173,7 +173,7 @@
                     "ajax": {
                         "url": "{{ URL::to('admin/select/confirm_selection_data') }}",
                         "data": function ( d ) {
-                            d["student_no"] = $("#student_id").val();
+                            d["student_no"] = $.trim($("#student_id").val());
                             d["type"] = type;
                             var fields = $('#course_select :checked').serializeArray();
                             if (fields.length > 0) {
@@ -192,7 +192,7 @@
         };
 		$(document).ready(function() {
             $("#btnQuery").click(function(){
-                var str = $("#student_id").val();
+                var str = $.trim($("#student_id").val());
                 var ex = /^[1-9]\d{12}$/;
                 if (!ex.test(str)) {
                     alert("请输入学号（13位数字）");

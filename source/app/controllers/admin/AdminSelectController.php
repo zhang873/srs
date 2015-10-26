@@ -93,7 +93,8 @@ class AdminSelectController extends AdminController {
     {
         $title = Lang::get('admin/select/title.count_number_course');
         $campuses = Campus::select('id', 'name')->get();
-        $groups = Group::select('id', 'name')->get();
+        $groups = Group::join('programs',  'groups.programs_id', '=', 'programs.id')
+            ->select('groups.id as gid','groups.name as gname', 'programs.campus_id as cid')->get();
         $curInfo = ModuleCurrent::where('module_id', 3)->first();
         $cur_year = null;
         if ($curInfo != null)
@@ -169,7 +170,8 @@ class AdminSelectController extends AdminController {
     {
         $title = Lang::get('admin/select/title.query_group_selection');
         $campuses = Campus::select('id', 'name')->get();
-        $groups = Group::select('id', 'name')->get();
+        $groups = Group::join('programs',  'groups.programs_id', '=', 'programs.id')
+            ->select('groups.id as gid','groups.name as gname', 'programs.campus_id as cid')->get();
         $curInfo = ModuleCurrent::where('module_id', 3)->first();
         $cur_year = null;
         if ($curInfo != null)

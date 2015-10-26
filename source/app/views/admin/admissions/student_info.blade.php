@@ -135,6 +135,7 @@
 
 
     <table id="students" class="table table-striped table-hover">
+        <caption><h4>{{ Lang::get('admin/admissions/title.student_info_record') }}</h4></caption>
         <thead>
             <tr>
                 <th class="col-md-04"></th>

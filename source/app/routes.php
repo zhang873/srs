@@ -229,6 +229,31 @@ Route::group(array('prefix' => 'admin', 'before' => 'auth'), function()
 
     Route::get('admissions/photo_link', 'AdminAdmissionController@getPhotoLink');
 
+
+    //dong
+    Route::get('admissions/approve_admission_changing', 'AdminAdmissionController@getApproveChangeAdmissionsIndexForProvince');
+    Route::get('admissions/data_approve_change_admissions_province', 'AdminAdmissionController@getDataApproveChangingAdmissionsForProvince');
+    Route::get('admissions/admissions_change_nopass','AdminAdmissionController@getNoPassChangeForProvince');
+    Route::get('admissions/admissions_change_no_approve','AdminAdmissionController@getNoCheckChangeForProvince');
+
+
+    Route::get('admissions/approve_reward_punish', 'AdminAdmissionController@getIndexForApproveRewardPunishProvince');
+    Route::get('admissions/data_approve_reward_punish', 'AdminAdmissionController@getDataForApproveRewardPunishProvince');
+    Route::get('admissions/approve_reward_punish_nopass', 'AdminAdmissionController@getApproveRewardPunishNoPass');
+    Route::get('admissions/approve_reward_punish_no_approve', 'AdminAdmissionController@getApproveRewardPunishNoApprove');
+    //admin admission_dropout
+    Route::get('admissions/approve_dropout', 'AdminAdmissionController@getApproveDropOutProvince');
+    Route::get('admissions/data_admissions_approve_dropout', 'AdminAdmissionController@getDataApproveDropOutProvince');
+    Route::get('admissions/admissions_dropout_nopass','AdminAdmissionController@getNoPassDropOutForProvince');
+    Route::get('admissions/admissions_dropout_no_approve','AdminAdmissionController@getNoApproveDropOutForProvince');
+
+    Route::get('admissions/approve_recovery', 'AdminAdmissionController@getApproveRecoveryApplicationProvince');
+    Route::get('admissions/data_approve_recovery', 'AdminAdmissionController@getDataApproveRecoveryApplicationProvince');
+    Route::get('admissions/admissions_recovery_nopass','AdminAdmissionController@getNoPassRecoveryForProvince');
+    Route::get('admissions/admissions_recovery_no_approve','AdminAdmissionController@getNoApproveRecoveryForProvince');
+
+    Route::get('admissions/admissions_change_appoint_group','AdminAdmissionController@getAdmissionChangeAppointGroup');
+    Route::get('admissions/data_admissions_change_appoint_group', 'AdminAdmissionController@getDataChangeAdmissionsForAppointGroup');
     # Admin Dashboard
 	Route::controller('/', 'AdminDashboardController');
 

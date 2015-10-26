@@ -100,13 +100,13 @@
 		$(document).ready(function() {
             $("#btnQuery").click(function(){
                 var ex = /^[1-9]\d{12}$/;
-                var str = $("#student_id_start").val();
+                var str = $.trim($("#student_id_start").val());
                 if (!ex.test(str)) {
                     alert("请输入起始学号（13位数字）");
                     $("#student_id_start").focus();
                     return false;
                 }
-                str = $("#student_id_end").val();
+                str = $.trim($("#student_id_end").val());
                 if (!ex.test(str)) {
                     alert("请输入终止学号（13位数字）");
                     $("#student_id_end").focus();
@@ -137,8 +137,8 @@
                         "ajax": {
                             "url": "{{ URL::to('admin/select/range_delete_selection_data') }}",
                             "data": function ( d ) {
-                                d["student_id_start"]= $('#student_id_start').val();
-                                d["student_id_end"]=$('#student_id_end').val();
+                                d["student_id_start"]= $.trim($("#student_id_start").val());
+                                d["student_id_end"]=$.trim($("#student_id_end").val());
                                 d["is_obligatory"]=$('#is_obligatory').val();
                                 var fields = $('#selection :checked').serializeArray();
                                 if (fields.length > 0) {

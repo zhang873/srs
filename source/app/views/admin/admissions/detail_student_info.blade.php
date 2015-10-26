@@ -1,4 +1,4 @@
-﻿@extends('admin.layouts.frame_modal')
+@extends('admin.layouts.frame_modal')
 
 {{-- Web site Title --}}
 @section('title')
@@ -427,8 +427,39 @@
                     "sButtonText": "{{{ Lang::get('admin/admissions/title.export_excel') }}}",
                     "sButtonClass":"btn btn-small btn-info",
                     "sFileName": "学籍情况.xls",
-                    "mColumns": "visible"
-                    
+                    "mColumns": "visible",
+                    "fnClick": function( nButton, oConfig, flash ) {
+                        var obj = this;
+                        var regex = new RegExp(oConfig.sFieldBoundary, "g"); /* Do it here for speed */
+
+                        var aRow, aData=[];
+                        $("#admissions tr").each(function(i) {
+                            if (i == 0) {
+                                aRow = [];
+                                var a = $(this).find("td").eq(0).text();
+                                aRow.push( obj._fnBoundData( a, oConfig.sFieldBoundary, regex ) );
+                                aData.push( aRow.join(oConfig.sFieldSeperator) );
+                            }
+                            else if (i > 0) {
+                                aRow = [];
+                                var a = $(this).find("th").eq(0).text();
+                                var b = $.trim($(this).find("td").eq(0).text());
+                                var c = $(this).find("th").eq(1).text();
+                                var d = $.trim($(this).find("td").eq(1).text());
+                                var e = $(this).find("th").eq(2).text();
+                                var f = $.trim($(this).find("td").eq(2).text());
+                                aRow.push( obj._fnBoundData( a, oConfig.sFieldBoundary, regex ) );
+                                aRow.push( obj._fnBoundData( b, oConfig.sFieldBoundary, regex ) );
+                                aRow.push( obj._fnBoundData( c, oConfig.sFieldBoundary, regex ) );
+                                aRow.push( obj._fnBoundData( d, oConfig.sFieldBoundary, regex ) );
+                                aRow.push( obj._fnBoundData( e, oConfig.sFieldBoundary, regex ) );
+                                aRow.push( obj._fnBoundData( f, oConfig.sFieldBoundary, regex ) );
+                                aData.push( aRow.join(oConfig.sFieldSeperator) );
+                            }
+                        });
+                        var str = aData.join( this._fnNewline(oConfig) );
+                        this.fnSetText( flash, str);
+                    }
                 }
             ]
         } );

@@ -136,7 +136,7 @@
                         $("#course_name").val(infos[1]);
                     }
                     else{
-                        alert("课程编号不存在");
+                        alert("该课程不存在");
                         $("#course_code").focus();
                     }
                 }
@@ -161,13 +161,13 @@
 
             str = $("#course_name").val();
             if (str=='') {
-                alert("请输入课程编号，只接受5位数字输入，且最高位从1开始");
+                alert("该课程不存在");
                 $("#course_code").focus();
                 return false;
             }
             str = $("#course_credit").val();
             if (str=='') {
-                alert("请输入课程编号，只接受5位数字输入，且最高位从1开始");
+                alert("该课程不存在");
                 $("#course_code").focus();
                 return false;
             }

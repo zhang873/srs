@@ -313,7 +313,7 @@ class AdminCourseController extends AdminController {
                                 return;
                             }
                             $course->lecturer = $results[$i][$idx_ary[Lang::get('admin/course/table.lecturer')]];
-                            $pattern = '/^[\x{4e00}-\x{9fa5}]+$/u';
+                            $pattern = '/^[\x{4e00}-\x{9fa5}\w()]+$/u';
                             if (preg_match($pattern, $course->lecturer) == 0) {
                                 $rst = 16;
                                 $text = $course->lecturer;
@@ -638,18 +638,29 @@ class AdminCourseController extends AdminController {
 
     public function postDownloadExcel(){
         $type = Input::get('excel_type');
-        if ($type == "导入课程表")
+        if ($type == "导入课程表") {
             $file_path = './excel_template/course.xls';
-        else if ($type == "导入教学计划")
+            $url = 'admin/course/course/importExcel';
+        }
+        else if ($type == "导入教学计划") {
             $file_path = './excel_template/teaching_plan.xls';
-        else if ($type == "导入模块课程")
+            $url = 'admin/course/teaching_plan/importExcel';
+        }
+        else if ($type == "导入模块课程"){
             $file_path = './excel_template/module.xls';
+            $url = 'admin/course/module/importExcel';
+        }
+
         if (file_exists($file_path) === true) {
             header("Content-Type: application/zip");
             header("Content-Length: " . filesize($file_path));
             header("Content-Disposition: attachment; filename=" . basename($file_path));
             readfile($file_path);
         }
+        else{
+            return Redirect::to($url)->withErrors(Lang::get('admin/course/title.excel_template_not_exist'));
+        }
+
     }
 
 

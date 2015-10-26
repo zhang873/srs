@@ -56,7 +56,7 @@
             @endforeach
         </select>
         <label  class="rlbl">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</label>
-        <label  class="rlbl">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</label>
+        <label  style="width:150px;">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</label>
     </div>
 
     <div class="form-group" align="center">
@@ -67,22 +67,22 @@
     </div>
     <br><br>
 
-    <div id="show_info" align="center">
+
         <table id="withdrawal_info" class="table table-striped table-hover table-bordered" align="center">
             <thead>
             <tr>
-                <th>{{{ Lang::get('admin/admissions/table.application_year') }}}</th>
-                <th>{{{ Lang::get('admin/admissions/table.application_semester') }}}</th>
-                <th>{{{ Lang::get('admin/admissions/table.student_name') }}}</th>
-                <th>{{{ Lang::get('admin/admissions/table.student_id') }}}</th>
-                <th>{{{ Lang::get('admin/admissions/table.admission_state') }}}</th>
-                <th>{{{ Lang::get('admin/admissions/table.major_classification') }}}</th>
-                <th>{{{ Lang::get('admin/admissions/table.source_major') }}}</th>
-                <th>{{{ Lang::get('admin/admissions/table.withdrawal_cause') }}}</th>
-                <th>{{{ Lang::get('admin/admissions/table.province_final_result') }}}</th>
-                <th>{{{ Lang::get('admin/admissions/table.province_final_device') }}}</th>
-                <th>{{{ Lang::get('admin/admissions/table.action') }}}</th>
-                <th>{{{ Lang::get('admin/exemption/table.multi-results') }}}
+                <th class="col-md-1">{{{ Lang::get('admin/admissions/table.application_year') }}}</th>
+                <th class="col-md-1">{{{ Lang::get('admin/admissions/table.application_semester') }}}</th>
+                <th class="col-md-3">{{{ Lang::get('admin/admissions/table.student_name') }}}</th>
+                <th class="col-md-2">{{{ Lang::get('admin/admissions/table.student_id') }}}</th>
+                <th class="col-md-1">{{{ Lang::get('admin/admissions/table.admission_state') }}}</th>
+                <th class="col-md-1">{{{ Lang::get('admin/admissions/table.major_classification') }}}</th>
+                <th class="col-md-2">{{{ Lang::get('admin/admissions/table.origin_major') }}}</th>
+                <th class="col-md-1">{{{ Lang::get('admin/admissions/table.withdrawal_cause') }}}</th>
+                <th class="col-md-2">{{{ Lang::get('admin/admissions/table.province_final_result') }}}</th>
+                <th class="col-md-2">{{{ Lang::get('admin/admissions/table.province_final_device') }}}</th>
+                <th class="col-md-3">{{{ Lang::get('admin/admissions/table.action') }}}</th>
+                <th class="col-md-3">{{{ Lang::get('admin/admissions/table.multi-results') }}}
                     <br>
                     <label id="checkAll"><a style="cursor: hand">全选</a></label>
                     <br>
@@ -93,13 +93,13 @@
         </table>
         <div align="center">
             <!-- Form Actions -->
-            <button type="submit" class="btn btn-default" value="1" id="btnAgree">{{{ Lang::get('button.agree') }}}</button>
+            <button type="submit" class="btn btn-small btn-info" value="1" disabled="disabled" id="btnAgree">{{{ Lang::get('button.agree') }}}</button>
             <!-- ./ form actions -->
         </div>
         <div>
             <input type="hidden" id="btnValue" value="2">
         </div>
-    </div>
+
 
 @stop
 
@@ -108,16 +108,34 @@
     <style>
         .rlbl{
             text-align:right;
-            width:150px;
+            width:120px;
 
         }
-        .rtxt{
-            text-align:left;
-            width:120px;
+        th{
+            text-align: center;
+            font-size: 15px;
+        }
+        td{
+            text-align: center;
+            font-size: 15px;
+        }
+        .col-md-1{
+            text-align:center;
+            width:40px;
+
+        }
+        .col-md-2{
+            text-align:center;
+            width:80px;
+
+        }
+        .col-md-3{
+            text-align:center;
+            width:60px;
+
         }
     </style>
 @stop
-
 
 
 {{-- Scripts --}}
@@ -127,7 +145,7 @@
         function countCheckedBoxes() {
             var n = $( "input:checked" ).length;
             if (n>0) {
-                $("#btnPass").attr("disabled", false);
+                $("#btnAgree").attr("disabled", false);
                 for (i=0;i<$( "input:checked" ).length;i++) {
                     if (i==0) {
                         $("#selectedAdmissions").val($( "input:checked" )[i].value);
@@ -136,10 +154,85 @@
                     }
                 }
             } else {
-                $("#btnPass").attr("disabled", true);
+                $("#btnAgree").attr("disabled", true);
             }
         }
         var oTable;
+        $('#withdrawal_info').delegate("#checkItem", "change",function(){
+            var ck = $(this).is(':checked');
+            if (ck === true){
+                var tr = $(this).parent().parent().parent();
+                var tdApprovalStatus = tr.find("td:eq(8)");
+                var approval_status = $.trim(tdApprovalStatus.html());
+                if (approval_status != "未审核"){
+                    $(this).prop("checked",false);
+                    alert("已审批");
+                    return false;
+                }
+            }
+            countCheckedBoxes();
+        });
+        $('#withdrawal_info').delegate("#noPass", "click", function(){
+            var id = $(this).attr("value");
+            var tr = $(this).parent().parent();
+            if (tr != null){
+                var tdRemark = tr.find("td:eq(9)");
+                var tdAdmissionStatus = tr.find("td:eq(4)");
+                var tdApprovalStatus = tr.find("td:eq(8)");
+                var approval_status = $.trim(tdApprovalStatus.html());
+                if (approval_status != "未审核"){
+                    alert("已审批");
+                    return false;
+                }
+                var remark = tdRemark.find("#approval_suggestion_province").val();
+                var jsonData = {
+                    "id": id,
+                    "remark": remark
+                };
+                $.ajax({
+                    type: 'GET',
+                    url: '{{ URL::to('admin/admissions/admissions_dropout_nopass') }}',
+                    async: false,
+                    data: jsonData,
+                    success: function (json) {
+                        if (json == 'ok'){
+                            tdAdmissionStatus.html("在籍");
+                            tdApprovalStatus.html("不同意");
+                            alert('审批成功');
+                        }
+                    }
+                });
+            }
+        });
+        $('#withdrawal_info').delegate("#noCheck", "click",function(){
+            var id = $(this).attr("value");
+            var tr = $(this).parent().parent();
+            if (tr != null){
+                var tdAdmissionStatus = tr.find("td:eq(4)");
+                var tdApprovalStatus = tr.find("td:eq(8)");
+                var approval_status = $.trim(tdApprovalStatus.html());
+                if (approval_status == "未审核"){
+                    return false;
+                }
+
+                var jsonData = {
+                    "id": id
+                };
+                $.ajax({
+                    type: 'GET',
+                    url: '{{ URL::to('admin/admissions/admissions_dropout_no_approve') }}',
+                    async: false,
+                    data: jsonData,
+                    success: function (json) {
+                        if (json == 'ok'){
+                            tdAdmissionStatus.html("在籍");
+                            tdApprovalStatus.html("未审核");
+                            alert('修改为未审核状态成功');
+                        }
+                    }
+                });
+            }
+        });
         $(document).ready(function() {
             oTable = $('#withdrawal_info').dataTable({
                 "searching": false,
@@ -190,14 +283,25 @@
                 $("#btnAgree").click(function () {
                     $('#btnValue').val(1);
                     oTable.fnReloadAjax();
+                    alert('审批成功');
+                    $(this).attr("disabled", true);
                 });
                 $('#checkAll').click(function () {
-
-                    $(':checkbox').prop("checked", true);
+                    $("#withdrawal_info tr").each(function(i) {
+                        if (i > 0) {
+                            var checkbox = $(this).find(":checkbox");
+                            if (checkbox == null)
+                                return;
+                            var tdApprovalStatus = $(this).find("td:eq(8)");
+                            var approval_status = $.trim(tdApprovalStatus.html());
+                            if (approval_status == "未审核"){
+                                checkbox.prop("checked",true);
+                            }
+                        }
+                    });
                     countCheckedBoxes();
                 });
                 $('#checkNo').click(function () {
-
                     $(':checkbox').prop("checked", false);
                     countCheckedBoxes();
                 });

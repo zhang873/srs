@@ -58,15 +58,15 @@
 @if ($state != -1)
 <div>
 <a href="{{{ URL::to('admin/select/change_campus_selection') }}}"> {{{ Lang::get('admin/select/title.change_campus_selection') }}}</a>&nbsp;
-@if ($state == 1)
+
 <a href="{{{ URL::to('admin/select/group_selection') }}}"> {{{ Lang::get('admin/select/title.group_selection') }}}</a>&nbsp;
 <a href="{{{ URL::to('admin/select/class_selection') }}}"> {{{ Lang::get('admin/select/title.class_selection') }}}</a>&nbsp;
 <a href="{{{ URL::to('admin/select/delete_selection') }}}"> {{{ Lang::get('admin/select/title.delete_selection') }}}</a>&nbsp;
 <a href="{{{ URL::to('admin/select/range_delete_selection') }}}"> {{{ Lang::get('admin/select/title.range_delete_selection') }}}</a>&nbsp;
-@else
+
 <a href="{{{ URL::to('admin/select/batch_confirm_selection') }}}" class="iframe"> {{{ Lang::get('admin/select/title.batch_confirm_selection') }}}</a>&nbsp;
 <a href="{{{ URL::to('admin/select/confirm_selection') }}}"> {{{ Lang::get('admin/select/title.confirm_selection') }}}</a>&nbsp;
-@endif
+
 </div>
 @endif
 <div>
@@ -77,6 +77,7 @@
 </div>
 @endif
 <br>
+省校学籍<br>
 <a href="{{{ URL::to('admin/admissions/comprehensive_student_info') }}}"> {{{ Lang::get('admin/admissions/title.admissions_comprehensive_query') }}}</a>&nbsp;
 <a href="{{{ URL::to('admin/admissions/student_info') }}}"> {{{ Lang::get('admin/admissions/title.admissions_information_query') }}}</a>&nbsp;
 <a href="{{{ URL::to('admin/admissions/basic_student_info') }}}"> {{{ Lang::get('admin/admissions/title.basic_student_info') }}}</a>&nbsp;
@@ -89,12 +90,19 @@
 <a href="{{{ URL::to('admin/admissions/information_classification_count') }}}"> {{{ Lang::get('admin/admissions/title.admissions_information_classification_count') }}}</a>&nbsp;
 <a href="{{{ URL::to('admin/admissions/photo_link') }}}"> {{{ Lang::get('admin/admissions/title.photo_link') }}}</a>&nbsp;
 <br><br>
-教学点<br>
+教学点学籍<br>
 <a href="{{{ URL::to('admin/admissions/campus_student_info') }}}"> {{{ Lang::get('admin/admissions/title.admissions_information_query') }}}</a>&nbsp;
 <a href="{{{ URL::to('admin/admissions/campus_basic_student_info') }}}"> {{{ Lang::get('admin/admissions/title.basic_student_info') }}}</a>&nbsp;
 <a href="{{{ URL::to('admin/admissions/campus_reward_punish_info') }}}"> {{{ Lang::get('admin/admissions/title.admissions_reward_punish') }}}</a>&nbsp;
 <a href="{{{ URL::to('admin/admissions/campus_status_changing_info') }}}"> {{{ Lang::get('admin/admissions/title.admissions_status_changing') }}}</a>&nbsp;
 <a href="{{{ URL::to('admin/admissions/campus_information_classification_count') }}}"> {{{ Lang::get('admin/admissions/title.admissions_information_classification_count') }}}</a>&nbsp;
+
+<br><br>
+<a href="{{{ URL::to('admin/admissions/approve_admission_changing') }}}"> {{{ Lang::get('admin/admissions/title.check_change_admissions') }}}</a>&nbsp;
+<a href="{{{ URL::to('admin/admissions/approve_reward_punish') }}}"> {{{ Lang::get('admin/admissions/title.approve_reward_punish') }}}</a>&nbsp;
+<a href="{{{ URL::to('admin/admissions/approve_dropout') }}}"> {{{ Lang::get('admin/admissions/title.approve_dropout') }}}</a>&nbsp;
+<a href="{{{ URL::to('admin/admissions/approve_recovery') }}}"> {{{ Lang::get('admin/admissions/title.check_recovery_admissions_application') }}}</a>&nbsp;
+<a href="{{{ URL::to('admin/admissions/admissions_change_appoint_group') }}}"> {{{ Lang::get('admin/admissions/title.change_admissions_appoint_group') }}}</a>&nbsp;
 
 @stop
 

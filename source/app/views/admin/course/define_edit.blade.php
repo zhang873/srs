@@ -247,7 +247,7 @@
                 return false;
             }
 
-            ex = /^[\u4e00-\u9fa5]+$/;
+            //ex = /^[\u4e00-\u9fa5]+$/;
             str = $("#lecturer").val();
             if (!ex.test(str)) {
                 alert("责任教师只能包括文字");

@@ -249,12 +249,22 @@
                     $("#major").focus();
                     return false;
                 }
-                str = $("#class_sysid").val();
+                str = $.trim($('#class_sysid').val());
                 if (str=='') {
                     alert("请输入班代码");
                     $("#class_sysid").focus();
                     return false;
                 }
+                var ex = /^\d+$/;
+
+                if (str != ''){
+                    if (!ex.test(str)) {
+                        alert("班号只接受数字");
+                        $("#class_sysid").focus();
+                        return false;
+                    }
+                }
+
                 if (tbClass == null){
                     tbClass = $('#classes').dataTable({
                         "searching":false,
@@ -283,7 +293,7 @@
                                 d["student_classification"]= $('#student_classification').val();
                                 d["year"]=$('#year').val();
                                 d["major"]=$('#major').val();
-                                d["class_sysid"]=$('#class_sysid').val();
+                                d["class_sysid"]=$.trim($('#class_sysid').val());
                             }
                         },
                         "aaSorting": [ [1,'asc'] ],

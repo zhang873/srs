@@ -92,4 +92,6 @@ return array(
     'module_is_obligatory_error' =>  '课程性质取值错误（填必修或选修）',
     'module_suggested_semester_error' =>  '建议开设学期取值错误（只接受数字）',
     'module_is_masked_error' =>  '是否屏蔽取值错误（填是或否）',
+
+    'excel_template_not_exist' =>  '模板不存在',
 );

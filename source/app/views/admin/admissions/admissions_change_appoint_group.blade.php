@@ -16,7 +16,7 @@
         <input type="hidden" name="_token" value="{{{ csrf_token() }}}" />
         <!-- ./ csrf token -->
         <input type="hidden" name="campus" id="campus" value="{{$campus->id}}">
-    <input id="selectedChangings" name="selectedChangings" type="hidden" value="" />
+    <input id="selectedIds" name="selectedIds" type="hidden" value="" />
     <input id="selectedGroup" name="selectedGroup" type="hidden" value="" />
         <div class="form-group" align="center">
             <h4>
@@ -33,7 +33,7 @@
                 <th>{{{ Lang::get('admin/admissions/table.student_type') }}}</th>
                 <th>{{{ Lang::get('admin/admissions/table.admission_state') }}}</th>
                 <th>{{{ Lang::get('admin/admissions/table.group_code') }}}</th>
-                <th>{{{ Lang::get('admin/admissions/table.select_group') }}}</th>
+                <th style="width:15%;">{{{ Lang::get('admin/admissions/table.select_group') }}}</th>
                 <th>{{{ Lang::get('admin/admissions/table.major') }}}</th>
                 <th>{{{ Lang::get('admin/admissions/table.major_classification') }}}</th>
                 <th>{{{ Lang::get('admin/admissions/table.nationgroup') }}}</th>
@@ -47,7 +47,7 @@
             </thead>
         </table>
     <div  class="form-group" align="center">
-        <button id="btnOk" name="state" value="2" class="btn btn-small btn-info" type="submit">确定</button>
+        <button id="btnOk" name="btnOk" value="2" class="btn btn-small btn-info" type="submit">确定</button>
     </div>
     <div>
         <input type="hidden" id="btnValue" name="btnValue" value="1"/>
@@ -67,38 +67,7 @@
 
 {{-- Scripts --}}
 @section('scripts')
-
     <script type="text/javascript">
-        function countCheckedBoxes() {
-            var n = $( "#checkItem:checked" ).length;
-            if (n>0) {
-                for (i=0;i<$("#checkItem:checked" ).length;i++) {
-                    if (i==0) {
-                        $("#selectedChangings").val($("#checkItem:checked" )[i].value);
-                        $("#selectedGroup").val($("#group" )[i].value);
-                    } else {
-                        $("#selectedChangings").val($("#selectedChangings").val() + ',' + $("#checkItem:checked" )[i].value);
-                    }
-                }
-                return true;
-            } else {
-                alert('请选择需指定的学生！');
-                return false;
-            }
-        }
-        function check(){
-            var n = $("#checkItem:checked" ).length;
-            if (n==0) {
-                alert('请选择需指定班级的学生！');
-                return false;
-            }
-            var group = $('#group').val();
-            if (group == '') {
-                alert('请选择班级！');
-                return false;
-            }
-            return true;
-        }
         var oTable;
         $(document).ready(function() {
             oTable = $('#admissions').dataTable( {
@@ -128,17 +97,9 @@
                 "ajax": {
                     "url": "{{{ URL::to('admin/admissions/data_admissions_change_appoint_group') }}}",
                     "data": function ( d ) {
-                        var fields = $('#checkItem :checked').serializeArray();
-                        if (fields.length > 0) {
-                            d["checkItem[]"] = new Array();
-                            d["group[]"] = new Array();
-                            $.each(fields, function(n, value){
-                                d["checkItem[]"].push(value.value);
-                                d["group[]"].push(value,value);
-                            });
-                        }
-                        d["group"]= $('#group').val();
-                        d["checkItem"]= $('#checkItem').val();
+                        d["selectedIds"]= $('#selectedIds').val();
+                        d["selectedGroup"]= $('#selectedGroup').val();
+                        d["state"]= $('#btnValue').val();
                     }
                 },
                 "fnDrawCallback": function ( oSettings ) {
@@ -156,17 +117,43 @@
                 "aaSorting": [ [0,'asc'] ]
             });
 
+            $("#btnOk").click(function(){
+                if ($('#admissions input:checkbox:checked').length <= 0){
+                    alert("请选择需指定班级的学生！");
+                    return false;
+                }
 
-            $(function() {
-
-                $("#btnOk").click(function(){
-                 //   countCheckedBoxes();
-                    if (check()){
-                        $('btnValue').val(2);
-                        oTable.fnReloadAjax();
+                var pass = true;
+                $("#selectedIds").val('');
+                $("#selectedGroup").val('');
+                $("#admissions tr").each(function(i) {
+                    if (i > 0) {
+                        var checkbox = $(this).find(":checkbox");
+                        if (checkbox == null)
+                            return;
+                        var ck = checkbox.is(':checked');
+                        if (ck == true){
+                            var sel_class = $(this).find("#group");
+                            if (sel_class != null){
+                                if (sel_class.val() == ''){
+                                    alert("请选择管理班！");
+                                    pass = false;
+                                    return;
+                                }
+                                else{
+                                    $("#selectedIds").val($("#selectedIds").val() + ',' + checkbox.val());
+                                    $("#selectedGroup").val($("#selectedGroup").val() + ',' + sel_class.val());
+                                }
+                            }
+                        }
                     }
-
                 });
+
+                if (pass === false)
+                    return;
+                $('#btnValue').val(2);
+                oTable.fnReloadAjax();
+                alert("指定管理班成功！");
             });
         });
     </script>
