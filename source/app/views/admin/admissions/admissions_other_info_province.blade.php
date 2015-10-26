@@ -11,6 +11,10 @@
         <h3>
             {{{ $title }}}
         </h3>
+        <div class="pull-right">
+            <a href="{{{ URL::to('admin/admissions/approve_admissions') }}}"><span class="glyphicon glyphicon-plus-sign"></span>{{{ Lang::get('admin/admissions/title.edit_admissions_info') }}}(省校权限)</a>&nbsp;&nbsp;
+            <a href="{{{ URL::to('admin/admissions/admissions_edit_province') }}}"><span class="glyphicon glyphicon-plus-sign"></span>{{{ Lang::get('admin/admissions/title.edit_admissions_info') }}}</a>&nbsp;&nbsp;
+        </div>
     </div>
 
     <div class="form-group" align="center">
@@ -19,8 +23,6 @@
         </h3>
     </div>
 
-
-    <form class="form-horizontal" method="post"  action="{{ URL::to('admin/admissions/edit_admissions_otherInfo') }}" autocomplete="off">
         <!-- CSRF Token -->
         <input type="hidden" name="_token" value="{{{ csrf_token() }}}" />
         <!-- ./ csrf token -->
@@ -42,20 +44,15 @@
             <tr>
                 <td class="col-md-2" colspan="4" align="center">
                     <!-- Form Actions -->
-                    <button type="submit" class="btn btn-default" value="query" id="btnQuery">{{{ Lang::get('admin/admissions/table.query') }}}</button>
+                    <button type="submit" class="btn btn-default" value="query" id="btnQuery" name="btnQuery">{{{ Lang::get('admin/admissions/table.query') }}}</button>
                     <!-- ./ form actions -->
                 </td>
             </tr>
             <thead>
-            <tbody>
-            </tbody>
         </table>
-        <hr>
-
-    </form>
     <br><br>
-    <div id="show_info">
-
+    <div id="frame">
+        <iframe src="" id="other_info" name="other_info" width="100%" height="800px" frameborder="0" scrolling="no"></iframe>
     </div>
 @stop
 
@@ -80,30 +77,33 @@
 @section('scripts')
 
     <script type="text/javascript">
-        function getSelectVal(){
-            $.getJSON("{{URL::to('admin/admissions/getOtherInfo')}}",{id:$("#student_id").val(),name:$('#student_name').val()},function(json){
-                var show_admissions = $("#show_admissions");
-                $.each(json,function(index,html){
-                    show_admissions.html(html);
-                });
-            });
+        function query_otherinfo(){
+            var ff = document.getElementById("other_info");
+            if (ff != null){
+                ff.src ="{{{ URL::to('admin/admissions/edit_admissions_otherInfo') }}}" + "?student_id="+ $("#student_id").val() +"&student_name="+$("#student_name").val();
+            }
+            $('#frame').show();
+
+        }
+        function check(){
+            if (($('#student_id').val() == '') && ($('#student_name').val() == '')) {
+                alert('学号、姓名不能同时为空，请至少填写一项');
+                $('#student_id').focus();
+                return false;
+            } else {
+                if(($('#student_name').val() != '') &&  ($('#student_name').val().length < 2)){
+                    alert('请输入完整的姓名');
+                    return false;
+                }
+                return true;
+            }
         }
         $(document).ready(function() {
             $(function () {
                 $("#btnQuery").click(function () {
-                    if (($('#student_id').val() == '') && ($('#student_name').val() == '')) {
-                        alert('学号、姓名不能同时为空，请至少填写一项');
-                        $('#student_id').focus();
-                        return false;
-                    } else {
-                        if(($('#student_name').val() != '') &&  ($('#student_name').val().length < 2)){
-                            alert('请输入完整的姓名');
-                            return false;
-                        }else{
-                            return true;
-                        }
+                    if(check()){
+                        query_otherinfo();
                     }
-                    return true;
 
                 });
             });

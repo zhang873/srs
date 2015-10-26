@@ -13,7 +13,7 @@
         </h3>
         <div class="pull-right">
             <a href="{{{ URL::to('admin/admissions/admissions_appoint_group') }}}"><span class="glyphicon glyphicon-plus-sign"></span>{{{ Lang::get('admin/admissions/title.admission_appoint_group') }}}</a>&nbsp;&nbsp;
-            <a href="{{{ URL::to('admin/admissions/group_edit') }}}"><span class="glyphicon glyphicon-plus-sign"></span>{{{ Lang::get('admin/admissions/title.admin_group') }}}</a>
+            <a href="{{{ URL::to('admin/admissions/admin_group') }}}"><span class="glyphicon glyphicon-plus-sign"></span>{{{ Lang::get('admin/admissions/title.edit_admin_group') }}}</a>
         </div>
         <br>
     </div>
@@ -29,12 +29,12 @@
                 </tr>
             </thead>
                   <tr>
-                    <th class="col-md-1" style="width: 150px;">{{{ Lang::get('admin/admissions/table.student_type') }}}</th>
+                    <th class="col-md-1" style="width: 150px;">{{{ Lang::get('admin/admissions/table.major_classification') }}}</th>
                     <td style="width: 150px;">
-                        <select  name="student_type" id="student_type" style="width:150px;">
+                        <select  name="major_classification" id="major_classification" style="width:150px;">
                             <option value="">全部</option>
-                            <option value="11">学历</option>
-                            <option value="12">课程</option>
+                            <option value="12">本科</option>
+                            <option value="14">专科</option>
                         </select>
                     </td>
                     <th class="col-md-1" style="width: 150px;">{{{ Lang::get('admin/admissions/table.major') }}}</th>
@@ -42,7 +42,7 @@
                         <select name="major" id="major" style="width:200px;">
                             <option value="">全部</option>
                             @foreach($rawprograms as $rawprogram)
-                                <option value="{{$rawprogram->id}}">{{$rawprogram->name}}</option>
+                                <option value="{{$rawprogram->id}}">{{$rawprogram->pname}}</option>
                             @endforeach
                         </select>
                     </td>
@@ -52,7 +52,7 @@
                     <td style="width: 150px;">
                         <select name="year" id="year" style="width:150px;">
                             <option value="">请选择</option>
-                            @for ($i=2000;$i<2025;$i++)
+                            @for ($i=2005;$i<2025;$i++)
                                 <option value="{{{$i}}}">{{$i}}</option>
                             @endfor
                         </select>
@@ -82,7 +82,7 @@
                     </td>
                 </tr>
                 <tr>
-                    <th class="col-md-1" style="width: 150px;">{{{ Lang::get('admin/admissions/table.group_admin') }}}</th>
+                    <th class="col-md-1" style="width: 150px;">{{{ Lang::get('admin/admissions/table.class_adviser') }}}</th>
                     <td style="width: 150px;"><input type="text"  style="width:150px;" id="class_adviser" name="class_adviser"></td>
                     <th class="col-md-1" style="width: 150px;"></th>
                     <td style="width: 150px;"></td>
@@ -120,7 +120,7 @@
         $(document).ready(
                 function() {
                     $("#form").submit(function () {
-                        var student_type = $("#student_type").val();
+                        var major_classification = $("#major_classification").val();
                         var major = $("#major").val();
                         var year = $("#year").val();
                         var semester = $("#semester").val();
@@ -129,9 +129,9 @@
                         var class_adviser = $("#class_adviser").val();
 
 
-                        if (student_type == "") {
-                            alert("请选择学生类别！");
-                            $("#student_type").focus();
+                        if (major_classification == "") {
+                            alert("请选择专业层次！");
+                            $("#major_classification").focus();
                             return false;
                         }
 

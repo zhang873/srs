@@ -90,7 +90,7 @@
             <th class="col-md-1">{{{ Lang::get('admin/admissions/table.jiGuan') }}}</th>
             <th class="col-md-1">{{{ Lang::get('admin/admissions/table.admission_state') }}}</th>
             <th class="col-md-1">{{{ Lang::get('admin/admissions/table.action') }}}</th>
-            <th class="col-md-1">{{{ Lang::get('admin/admissions/table.cancel_elimination') }}}</th>
+            <th class="col-md-1">{{{ Lang::get('admin/admissions/table.cancel_expel') }}}</th>
         </tr>
         </thead>
     </table>
@@ -123,6 +123,16 @@
 @section('scripts')
 
     <script type="text/javascript">
+        function getSelectVal(){
+            $.getJSON("{{URL::to('admin/admissions/getCampuses')}}",{school:$("#school").val()},function(json){
+                var campus = $("#campus");
+                $("option",campus).remove();  //清空原有的选项
+                $.each(json,function(index,array){
+                    var option = "<option value='"+array['id']+"'>"+array['name']+"</option>";
+                    campus.append(option);
+                });
+            });
+        }
         var oTable;
         $(document).ready(function() {
             oTable = $('#admissions').dataTable( {
@@ -168,6 +178,10 @@
             });
 
             $(function(){
+                    getSelectVal();
+                    $("#school").change(function(){
+                        getSelectVal();
+                    });
                 $("#btnQuery").click(function(){
                     $('#btnValue').val(1);
                     oTable.fnReloadAjax();

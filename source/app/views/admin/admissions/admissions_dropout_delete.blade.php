@@ -4,12 +4,12 @@
 @section('content')
 
     {{-- Delete User Form --}}
-    <form id="deleteForm" class="form-horizontal" method="post" action="@if (isset($dropout)){{ URL::to('admin/admissions/delete_dropout?id='.$dropout->id) }}@endif" autocomplete="off">
+    <form id="deleteForm" class="form-horizontal" method="post" action="@if (isset($dropout)){{ URL::to('admin/admissions/delete_dropout?student_id='.$dropout->id) }}@endif" autocomplete="off">
         <!-- CSRF Token -->
         <input type="hidden" name="_token" value="{{{ csrf_token() }}}" />
-        <input type="hidden" name="id" value="{{ $dropout->id }}" />
         <!-- ./ csrf token -->
-
+        @if (!empty($dropout))
+        <input type="hidden" id="student_id" name="student_id" value="{{$dropout->id}}"/>
         <!-- Form Actions -->
         <div class="form-group">
             <div class="controls" align="center">
@@ -17,9 +17,23 @@
                 <br>
                 <br>
                 <button type="submit" class="btn btn-danger" id="btnSubmit" value="1">{{{ Lang::get('general.delete') }}}</button>
-                <button type="button" class="btn-cancel close_popup" onclick="javascript:window.location.href='{{URL::to('admin/admissions/edit_dropout?id='.$dropout->id)}}';">{{{ Lang::get('general.cancel') }}}</button>
+                <button type="button" class="btn-cancel close_popup" onclick="closeWin()">{{{ Lang::get('general.cancel') }}}</button>
             </div>
         </div>
-        <!-- ./ form actions -->
+        @else
+            {{Lang::get('admin/admissions/messages.no_dropout_records')}}
+         @endif
+                <!-- ./ form actions -->
     </form>
 @stop
+
+{{-- Scripts --}}
+@section('scripts')
+    <script language="text/javascript">
+        function closeWin()
+        {
+            window.open('','_self','');
+            window.close();
+        }
+    </script>
+    @stop

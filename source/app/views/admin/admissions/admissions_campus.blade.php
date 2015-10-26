@@ -19,7 +19,13 @@
         <!-- CSRF Token -->
         <input type="hidden" name="_token" value="{{{ csrf_token() }}}" />
         <!-- ./ csrf token -->
-
+    <input id="selectedPoliticalStatus" name="selectedPoliticalStatus" type="hidden" value="" />
+    <input id="selectedIds" name="selectedIds" type="hidden" value="" />
+    <input id="selectedMaritalStatus" name="selectedMaritalStatus" type="hidden" value="" />
+    <input id="selectedJiguan" name="selectedJiguan" type="hidden" value="" />
+    <input id="selectedHukou" name="selectedHukou" type="hidden" value="" />
+    <input id="selectedDistribution" name="selectedDistribution" type="hidden" value="" />
+    <input id="selectedIs_serving" name="selectedIs_serving" type="hidden" value="" />
         <div class="form-group" align="center">
             <h3>
                 {{Lang::get('admin/admissions/table.query_input')}}
@@ -49,18 +55,19 @@
             </select>
         </div>
         <div  class="form-group" align="center">
-            <button id="btnQuery" name="state" type="submit" value="2" class="btn btn-small btn-info" >查询</button>
+            <button id="btnQuery" name="btnQuery" type="submit" value="2" class="btn btn-small btn-info" >查询</button>
         </div>
 
    <br>
    <br>
    <br>
+    <div  class="form-group" align="center">
 
-        <table id="admissions" class="table table-striped table-hover table-bordered" align="center">
+        <table id="admissions" class="table table-striped table-hover" align="center">
             <thead>
             <tr>
-                <th></th>
-                <th>{{{ Lang::get('admin/admissions/table.student_name') }}}</th>
+                <th class="col_1" ></th>
+                <th class="col_2">{{{ Lang::get('admin/admissions/table.student_name') }}}</th>
                 <th>{{{ Lang::get('admin/admissions/table.student_id') }}}</th>
                 <th>{{{ Lang::get('admin/admissions/table.certification_type') }}}</th>
                 <th>{{{ Lang::get('admin/admissions/table.certification_code') }}}</th>
@@ -71,12 +78,15 @@
                 <th>{{{ Lang::get('admin/admissions/table.huKou') }}}</th>
                 <th>{{{ Lang::get('admin/admissions/table.distribution') }}}</th>
                 <th>{{{ Lang::get('admin/admissions/table.occupationState') }}}</th>
+                <th></th>
             </tr>
             </thead>
         </table>
+
+    </div>
     <div  class="form-group" align="center">
-        <button id="btnOk" name="state" value="1" class="btn btn-small btn-info" type="submit">确定</button>
-        <input type="hidden" id="admission_id[]" name="admission_id"/>
+        <button id="btnOK" name="btnOK" value="1" class="btn btn-small btn-info" type="submit">确定</button>
+        <input id="btnValue" name="btnValue" value="2" type="hidden">
     </div>
 @stop
 
@@ -85,7 +95,12 @@
         .rlbl{
             text-align:right;
             width:200px;
-
+        }
+        .col_1{
+            width:20px;
+        }
+        .col_2{
+            width:80px;
         }
     </style>
 @stop
@@ -94,9 +109,41 @@
 @section('scripts')
 
     <script type="text/javascript">
+        function countSelects() {
+            $("#selectedPoliticalStatus").val('');
+            $("#selectedIds").val('');
+            $("#selectedMaritalStatus").val('');
+            $("#selectedJiguan").val('');
+            $("#selectedHukou").val('');
+            $("#selectedDistribution").val('');
+            $("#selectedIs_serving").val('');
+            $( "select[name='politicalstatus[]'] option:selected" ).each(function() {
+                $("#selectedPoliticalStatus").val($("#selectedPoliticalStatus").val() + ',' + $(this).val());
+            });
+            $( "input[name='ids[]']" ).each(function() {
+                $("#selectedIds").val($("#selectedIds").val() + ',' + $(this).val());
+            });
+            $( "select[name='maritalstatus[]'] option:selected" ).each(function() {
+                $("#selectedMaritalStatus").val($("#selectedMaritalStatus").val() + ',' + $(this).val());
+            });
+            $( "select[name='jiguan[]'] option:selected" ).each(function() {
+                $("#selectedJiguan").val($("#selectedJiguan").val() + ',' + $(this).val());
+            });
+            $( "select[name='hukou[]'] option:selected" ).each(function() {
+                $("#selectedHukou").val($("#selectedHukou").val() + ',' + $(this).val());
+            });
+            $( "select[name='distribution[]'] option:selected" ).each(function() {
+                $("#selectedDistribution").val($("#selectedDistribution").val() + ',' + $(this).val());
+            });
+            $( "select[name='is_serving[]'] option:selected" ).each(function() {
+                $("#selectedIs_serving").val($("#selectedIs_serving").val() + ',' + $(this).val());
+            });
+
+        }
         var oTable;
         $(document).ready(function() {
             oTable = $('#admissions').dataTable({
+                "ordering": false,
                 "sDom": "<'row'<'col-md-6'l><'col-md-6'f>r>t<'row'<'col-md-6'i><'col-md-6'p>>",
                 "sPaginationType": "bootstrap",
                 "oLanguage": {
@@ -121,15 +168,18 @@
                 "ajax": {
                     "url": "{{{ URL::to('admin/admissions/data_admissions_campus') }}}",
                     "data": function (d) {
+                        d["politicalstatus"]= $('#selectedPoliticalStatus').val();
+                        d["ids"]= $('#selectedIds').val();
+                        d["maritalstatus"]= $('#selectedMaritalStatus').val();
+                        d["jiguan"]= $('#selectedJiguan').val();
+                        d["hukou"]= $('#selectedHukou').val();
+                        d["distribution"]= $('#selectedDistribution').val();
+                        d["is_serving"]= $('#selectedIs_serving').val();
                         d["student_id"] = $('#student_id').val();
                         d["student_name"] = $('#student_name').val();
                         d["major"] = $('#major').val();
                         d["major_classification"] = $('#major_classification').val();
-                        d["politicalstatus"]=$('#politicalstatus').val();
-                         d["maritalstatus"]=$('#maritalstatus').val();
-                         d["jiguan"]=$('#jiguan').val();
-                         d["hukou"]=$('#hukou').val();
-                         
+                        d["state"] =$('#btnValue').val();
                     }
                 },
                 "fnDrawCallback": function ( oSettings ) {
@@ -148,8 +198,16 @@
             });
 
             $("#btnQuery").click(function () {
+                $("#btnValue").val(2);
                 oTable.fnReloadAjax();
             });
+            $("#btnOK").click(function(){
+                $("#btnValue").val(1);
+                countSelects();
+                oTable.fnReloadAjax();
+            });
+
+
         });
 
     </script>

@@ -12,14 +12,14 @@ class CreateSchoolInfo extends Migration {
 	 */
 	public function up()
 	{
-        if (Schema::hasTable('school_info') == false) {
+	        if (Schema::hasTable('school_info') == false) {
             Schema::create('school_info', function (Blueprint $table) {
                 $table->engine = 'InnoDB';
                 $table->increments('id')->unsigned()->index();
                 
                 $table->string('school_name', 255);
                 $table->integer('school_id');
-                $table->tinyint('is_deleted');
+                $table->tinyinteger('is_deleted');
                 $table->timestamps();
             });
         }
@@ -31,8 +31,8 @@ class CreateSchoolInfo extends Migration {
 	 * @return void
 	 */
 	public function down()
-    {
+	{
         Schema::drop('groups');
-    }
+	}
 
 }

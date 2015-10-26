@@ -12,17 +12,18 @@
 			{{{ $title }}}
 		</h3>
 	</div>
-    <form method="post" action="">
+    <form method="post" id="form" name="form" action="">
     <div align="center">
         {{$school->school_name}}分校中的教学点
     </div>
     <input type="hidden" name="_token" value="{{{ csrf_token() }}}" />
     <input type="hidden" id="id" value="{{$id}}">
     <input id="selectedCampuses" name="selectedCampuses" type="hidden" value="" />
+    <input id="unselectedCampuses" name="unselectedCampuses" type="hidden" value="" />
+
 	<table id="school" class="table table-striped table-hover text-center table-bordered" width="60%" align="center">
 		<thead>
 			<tr>
-                <th></th>
                 <th class="col-md-2 text-center">{{{ Lang::get('admin/admissions/table.campus_code') }}}</th>
                 <th class="col-md-2 text-center">{{{ Lang::get('admin/admissions/table.campus_name') }}}</th>
                 <th class="col-md-2 text-center">{{{ Lang::get('admin/admissions/table.action') }}}</th>
@@ -46,20 +47,27 @@
     <script type="text/javascript">
 
             function countCheckedBoxes() {
-                var n = $( "input:checked" ).length;
-                if (n>0) {
-                    $("#btnOK").attr("disabled", false);
-                    for (i=0;i<$( "input:checked" ).length;i++) {
-                        if (i==0) {
-                            $("#selectedCampuses").val($( "input:checked" )[i].value);
-                        } else {
-                            $("#selectedCampuses").val($("#selectedCampuses").val() + ',' + $( "input:checked" )[i].value);
+                var oCheck = document.form.checkItem, i;
+                for (i = 0; i < oCheck.length; i++) {
+                    if (oCheck[i].checked) {
+                        if ($("#selectedCampuses").val() == ''){
+                            $("#selectedCampuses").val(oCheck[i].value);
+                        }else{
+                            $("#selectedCampuses").val($("#selectedCampuses").val() + ',' + oCheck[i].value);
                         }
+                    } else {
+                        $("#unselectedCampuses").val($("#unselectedCampuses").val() + ',' + oCheck[i].value);
                     }
-                } else {
-                    $("#btnOK").attr("disabled", true);
                 }
             }
+     /*       var n = $( "input:checked" ).length;
+            if (n==0){
+                alert('请选择要添加的教学点！');
+                return false;
+            }
+                return true;
+            }
+      */
             var oTable;
             $(document).ready(function() {
                 oTable = $('#school').dataTable({
@@ -87,26 +95,10 @@
                     "bServerSide": true,
                     "bAutoWidth": true,
                     "sAjaxSource": "{{ URL::to('admin/admissions/data_school_add_campus') }}",
-                    /*    "ajax": {
-                     "url": "{ URL::to('admin/admissions/school_add_campus') }}}",
-                     "data": function ( d ) {
-                     d["selectedCampuses"]= $('#selectedCampuses').val();
-                     d["id"]= $('#id').val();
-                     }
-                     },
-                     */
+
                     "aaSorting": [[0, 'asc']]
                 });
-                /*    $.ajax({
-                 type: "post",
-                 url: "{URL::to('admin/admissions/school_add_campus')}}}",
-                 data: "selectedCampuses=" + $('#selectedCampuses').val() + "&" + "id="+$('#id').val() //要传的值
-                 });
-                 */
-                /*        oTable.on('draw', function() {
-                    $('#checkItem').onclick(countCheckedBoxes());
-                });
-                 */
+
 
                 $("#btnOK").click(function () {
                     countCheckedBoxes();

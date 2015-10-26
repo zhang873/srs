@@ -12,9 +12,10 @@
         {{{ $title }}}
        
         <div class="pull-right">
-            <a href="{{{ URL::to('admin/admissions/group_define') }}}" class="btn btn-small btn-info"><span class="glyphicon glyphicon-plus-sign"></span>{{{ Lang::get('admin/groups/title.groups_create') }}}</a>
+            <a href="{{{ URL::to('admin/admissions/group_define') }}}" class="btn btn-small btn-info"><span class="glyphicon glyphicon-plus-sign"></span>{{{ Lang::get('admin/admissions/title.groups_create') }}}</a>&nbsp;&nbsp;
+            <a href="{{{ URL::to('admin/admissions/group_edit') }}}" class="btn btn-small btn-info"><span class="glyphicon glyphicon-plus-sign"></span>{{{ Lang::get('admin/admissions/title.edit_admin_group') }}}</a>
         </div>
-        			
+        <br>
     </h3>
 </div>
 
@@ -44,11 +45,11 @@
             "sDom": "<'row'<'col-md-6'l><'col-md-6'f>r>t<'row'<'col-md-6'i><'col-md-6'p>>",
             "sPaginationType": "bootstrap",
             "oLanguage": {
-                "sLengthMenu": "{{{ Lang::get('admin/groups/table.records_per_page') }}} _MENU_"
+                "sLengthMenu": "{{{ Lang::get('admin/admissions/table.records_per_page') }}} _MENU_"
             },
             "bProcessing": true,
             "bServerSide": true,
-            "sAjaxSource": "{{ URL::to('admin/groups/get_groups_data') }}",
+            "sAjaxSource": "{{ URL::to('admin/admissions/get_groups_data') }}",
             "fnDrawCallback": function (oSettings) {
                 $(".iframe").colorbox({iframe: true, width: "80%", height: "80%"});
             }

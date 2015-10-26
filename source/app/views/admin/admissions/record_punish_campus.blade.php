@@ -9,7 +9,7 @@
 @section('content')
 
 {{-- Create Form --}}
-<form id="form" name="form" class="form-horizontal" method="post"  autocomplete="off" action="{{URL::to('admin/admissions/'.$id.'/define_punish')}}">
+<form id="form" name="form" class="form-horizontal" method="post"  autocomplete="off" action="{{URL::to('admin/admissions/'.$id.'/record_punish_campus')}}">
     <!-- CSRF Token -->
     <input type="hidden" name="_token" value="{{{ csrf_token() }}}" />
     <!-- ./ csrf token -->
@@ -68,14 +68,21 @@
             width:80px;
         }
     </style>
+    {{ HTML::style('assets/css/jquery-ui.css') }}
 @stop
 
 {{-- Scripts --}}
 @section('scripts')
+    {{ HTML::script('assets/js/jquery.min.js') }}
+    {{ HTML::script('assets/js/jquery-ui-datepicker.js') }}
 <script type="text/javascript">
-
     $(document).ready(
             function() {
+                $(function() {
+                    $("#punish_date").datepicker({
+                        dateFormat: 'yy/mm/dd'
+                    });
+                });
                 $("#form").submit(function () {
                     var punish_code = $("#punish_code").val();
                     var punish_cause = $("#punish_cause").val();
@@ -84,13 +91,7 @@
                     var operator = $("#operator").val();
                     var remark = $("#remark").val();
 
-                    /*      if (punish_date == "") {
-                     alert("请选择日期！");
-                     $("#punish_date").focus();
-                     return false;
-                     }
 
-                     */
                     if (punish_code == "") {
                         alert("请选择惩罚代码！");
                         $("#punish_code").focus();
@@ -102,12 +103,17 @@
                         $("#punish_cause").focus();
                         return false;
                     }
+                    if (punish_date == "") {
+                        alert("请选择日期！");
+                        $("#punish_date").focus();
+                        return false;
+                    }
 
                     if (operator == "") {
                         alert("请输入操作员姓名！");
                         $("#operator").focus();
                         return false;
-                    }else if (operator.search(/(^(?!.*?_$)[0-9_\u4e00-\u9fa5]+$)/) == -1) {
+                    }else if (operator.search(/(^(?!.*?_$)[0-9_a-z_\u4e00-\u9fa5]+$)/) == -1) {
                         alert("只能输入文字！");
                         $("#operator").focus();
                         return false;

@@ -13,7 +13,7 @@
         </h3>
     </div>
     {{-- Delete Unified Exam Info Form --}}
-    <form id="passForm" class="form-horizontal" method="post" action="@if (isset($id)){{ URL::to('admin/admissions/' . $id . '/admissions_cancel_elimination') }}@endif" autocomplete="off">
+    <form id="passForm" class="form-horizontal" method="post" action="@if (isset($id)){{ URL::to('admin/admissions/' . $id . '/admissions_cancel_expel') }}@endif" autocomplete="off">
         <!-- CSRF Token -->
         <input type="hidden" name="_token" value="{{{ csrf_token() }}}" />
         <input type="hidden" name="id" value="{{ $id }}" />

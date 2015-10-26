@@ -91,6 +91,10 @@
         </tr>
         </thead>
     </table>
+    <br>
+    <div align="left">
+        <iframe align="left" src="" id="recovery" name="recovery" width="100%" height="600px" frameborder="0" scrolling="no" marginwidth="0"></iframe>
+    </div>
 @stop
 
 @section('styles')

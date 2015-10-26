@@ -1,17 +1,8 @@
-@extends('admin.layouts.default')
+@extends('admin.layouts.frame_modal')
 
 {{-- Web site Title --}}
-@section('title')
-    {{{ $title }}} :: @parent
-@stop
-
 {{-- Content --}}
 @section('content')
-    <div class="page-header">
-        <h3>
-            {{{ $title }}}
-        </h3>
-    </div>
     <form id="form" class="form-horizontal" method="post"  action="" autocomplete="off">
         <!-- CSRF Token -->
         <input type="hidden" name="_token" value="{{{ csrf_token() }}}" />
@@ -115,7 +106,7 @@
                         @endfor
                     </select>
                 </td>
-                <td align="center"><h4>恢复学籍学期</h4></td>
+                <td align="center">恢复学籍学期</td>
                 <td>
                     <select name="recovery_semester" id="recovery_semester" style="width:150px;">
                         <option value="">请选择</option>
@@ -140,22 +131,26 @@
 @section('scripts')
 
     <script type="text/javascript">
+        function check(){
+            var recovery_year = $('#recovery_year').val();
+            var recovery_semester = $('#recovery_semester').val();
+            if (recovery_year == "") {
+                alert('请选择恢复学籍年度！');
+                $('#recovery_year').focus();
+                return false;
+            }
+            if (recovery_semester == "") {
+                alert('请选择恢复学籍学期！');
+                $('#recovery_semester').focus();
+                return false;
+            }
+            return true;
+        }
 
         $(document).ready(function() {
-            $('#form').submit(function () {
-                var recovery_year = $('#recovery_year').val();
-                var recovery_semester = $('#recovery_semester').val();
-                if (recovery_year == "") {
-                    alert('请选择恢复学籍年度！');
-                    $('#recovery_year').focus();
-                    return false;
-                }
-                if (recovery_semester == "") {
-                    alert('请选择恢复学籍学期！');
-                    $('#recovery_semester').focus();
-                    return false;
-                }
-                return true;
+            $('#btnSave').click(function () {
+            check();
+
             });
         });
 

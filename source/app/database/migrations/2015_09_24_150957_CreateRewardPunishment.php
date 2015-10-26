@@ -1,16 +1,18 @@
 <?php
+
 use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Database\Migrations\Migration;
+
 class CreateRewardPunishment extends Migration {
-	
+
 	/**
 	 * Run the migrations.
 	 *
 	 * @return void
 	 */
-	public function up() {
-		// Create the `reward_info` table
-        if (Schema::hasTable('reward_info') == false) {
+	public function up()
+	{
+		 if (Schema::hasTable('reward_info') == false) {
             Schema::create('reward_info', function ($table) {
                 $table->engine = 'InnoDB';
                 $table->increments('id')->unsigned()->index();
@@ -51,36 +53,38 @@ class CreateRewardPunishment extends Migration {
         		$table->engine = 'InnoDB';
         		$table->increments('id')->unsigned()->index();
         		$table->datetime('date');
+			    $table->smallInteger('year')->nullable();//new
+			    $table->tinyInteger('semester')->nullable();//new
         		$table->string('remark');
         		$table->string('document_id');
         		$table->string('operator');
         		$table->tinyInteger('approval_result');
-        		$table->tinyint('is_deleted');
+        		$table->tinyInteger('is_deleted');
         		$table->timestamps();
         
         		$table->Integer('reward_level');
         		$table->Integer('punishment');
         		$table->Integer('punishment_cause');
-        		$table->integer('student_id')->unsigned()->index();
-        		$table->foreign('reward_level')->references('code')->on('reward_info');
-        		$table->foreign('punishment')->references('code')->on('punishment_info');
-        		$table->foreign('punishment_cause')->references('code')->on('punishment_cause_info');
-        		$table->foreign('student_id')->references('studentno')->on('admissions');
+        		$table->string('student_id',15);
+        		//$table->foreign('reward_level')->references('code')->on('reward_info');
+        		//$table->foreign('punishment')->references('code')->on('punishment_info');
+        		//$table->foreign('punishment_cause')->references('code')->on('punishment_cause_info');
+
         	});
         }
-
 	}
-	
+
 	/**
 	 * Reverse the migrations.
 	 *
 	 * @return void
 	 */
-	public function down() {
-		// Delete the all the tables
+	public function down()
+	{
 		Schema::drop ( 'reward_info' );
 		Schema::drop ( 'punishment_info' );
 		Schema::drop ( 'punishment_cause_info' );
 		Schema::drop ( 'student_reward_punishment' );
 	}
+
 }

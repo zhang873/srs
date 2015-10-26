@@ -15,7 +15,7 @@
 <br>
 
     {{-- Delete Unified Exam Info Form --}}
-    <form id="form" class="form-horizontal" method="post" action="@if (isset($id)){{ URL::to('admin/admissions/' . $id . '/admissions_elimination_details') }}@endif" autocomplete="off">
+    <form id="form" class="form-horizontal" method="post" action="@if (isset($id)){{ URL::to('admin/admissions/' . $id . '/admissions_expel_details') }}@endif" autocomplete="off">
         <!-- CSRF Token -->
         <input type="hidden" name="_token" value="{{{ csrf_token() }}}" />
         <input type="hidden" name="id" value="{{ $id }}" />

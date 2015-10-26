@@ -17,7 +17,7 @@
 		<thead>
 			<tr>
                 <th class="col-md-2 text-center">{{{ Lang::get('admin/admissions/table.punish_code') }}}</th>
-                <th class="col-md-2 text-center">{{{ Lang::get('admin/admissions/table.punish_sysid') }}}</th>
+                <th class="col-md-2 text-center">{{{ Lang::get('admin/admissions/table.code') }}}</th>
                 <th class="col-md-2 text-center">{{{ Lang::get('admin/admissions/table.action') }}}</th>
 			</tr>
 		</thead>
@@ -27,7 +27,7 @@
     <br>
     <br>
     <div align="center">
-        <a href="{{{ URL::to('admin/admissions/punish_code_define') }}}" class="btn btn-small btn-info iframe"><span class="glyphicon glyphicon-plus-sign"></span>{{{ Lang::get('admin/admissions/table.create_a_new_school') }}}</a>
+        <a href="{{{ URL::to('admin/admissions/define_punish_code') }}}" class="btn btn-small btn-info iframe"><span class="glyphicon glyphicon-plus-sign"></span>{{{ Lang::get('admin/admissions/table.create_a_new_punish_code') }}}</a>
     </div>
 @stop
 

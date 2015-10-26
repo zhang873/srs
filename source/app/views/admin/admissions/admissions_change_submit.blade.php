@@ -17,10 +17,9 @@
         <!-- CSRF Token -->
         <input type="hidden" name="_token" value="{{{ csrf_token() }}}" />
         <!-- ./ csrf token -->
-        <input type="hidden" id="semester" name="semester" value="{{$current_year_semester->current_semester}}">
-        <input type="hidden" id="year" name="year" value="{{$current_year_semester->current_year}}">
+        <input type="hidden" id="id" name="id" value="{{$id}}">
         <input type="hidden" id="original_major_id" name="original_major_id" value="{{$admission->programcode}}">
-        <input type="hidden" id="original_campus_id" name="original_campus_id" value="{{$original_campus->id}}">
+        <input type="hidden" id="original_campus_id" name="original_campus_id" value="{{$admission->campuscode}}">
         <input type="hidden" id="original_class_id" name="original_class_id" value="{{$admission->group_id}}">
         <table id="exemption"  class="table table-striped table-hover table-bordered" align="center" width="800px">
             <thead>
@@ -422,6 +421,7 @@
                 $("#btnValue").val(2);
                 oTable.fnReloadAjax();
             });
+
             $(function(){
                 getSelectVal();
                 $("#campus").change(function(){

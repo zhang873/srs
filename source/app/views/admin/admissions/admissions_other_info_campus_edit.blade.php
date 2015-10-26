@@ -1,24 +1,18 @@
-@extends('admin.layouts.default')
+@extends('admin.layouts.frame_modal')
 
 {{-- Web site Title --}}
 @section('title')
-    {{{ $title }}} :: @parent
+    detail:: @parent
 @stop
 
 {{-- Content --}}
 @section('content')
-    <div class="page-header">
-        <h3>
-            {{{ $title }}}
-        </h3>
-    </div>
-    <br><br>
     <div id="show_info" align="center">
-        <form method="post" id="form" action="{{ URL::to('admin/admissions/save_edit_other_info') }}">
+        <form id="form" method="post" action="">
             <!-- CSRF Token -->
             <input type="hidden" name="_token" value="{{{ csrf_token() }}}" />
             <!-- ./ csrf token -->
-
+            <input type="hidden" id="student_id" name="student_id" value="{{$admission->id}}">
             <!-- Tabs Content -->
             <table id="studentInfo" class="table table-striped table-hover table-bordered" style="width: 800px">
                 <thead><tr><td colspan="4" align="center"><h4>{{Lang::get('admin/admissions/table.student_basic_info')}}</h4></td></tr></thead>
@@ -383,20 +377,18 @@
                         <th class="col-md-1"></th>
                         <td></td>
                     </tr>
-                    <input type="hidden" name="student_id" id="student_id" value="{{$admission->id}}">
-
 
             </table>
             <!-- ./ form actions -->
                 <div class="form-group" align="center">
                     <button id="btnSave" name="state" type="submit" class="btn btn-small btn-info" >
-                        {{{ Lang::get('admin/admissions/table.save') }}}</button>
-
+                        {{{ Lang::get('admin/admissions/table.save') }}}</button> &nbsp;&nbsp;
+                   <button type="button" class="btn btn-small btn-info" onclick="history.go(-1)">返回</button>
                 </div>
             @else
                 <tr><td align="center">{{Lang::get('admin/admissions/messages.no_student_info')}}</td></tr>
                 </table>
-                <div align="center"><button type="button" onclick="history.go(-1)">返回</button></div>
+                <div align="center"><button type="button" onclick="javascript:window.location.href='{{URL::to('admin/admissions/admissions_other_info')}}'">返回</button></div>
             @endif
         </form>
     </div>

@@ -7,6 +7,7 @@
 
 {{-- Content --}}
 @section('content')
+@if($campus->status_changing == 1)
     <div class="page-header">
         <h3>
             {{{ $title }}}
@@ -96,6 +97,10 @@
     <div id="frames" style="display: none;">
         <iframe src="" id="base_info" name="base_info" width="100%" height="600px" frameborder="0"></iframe>
     </div>
+    @else
+       <br>
+       <h4>{{Lang::get('admin/admissions/messages.no_change_authority')}}</h4>
+@endif
 @stop
 
 @section('styles')

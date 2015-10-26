@@ -56,7 +56,7 @@
         <select size="1" name="school" id="school" style="width:200px;">
             <option value="">全部</option>
             @foreach($schools as $school)
-                <option value="{{$school->id}}">{{$school->name}}</option>
+                <option value="{{$school->id}}">{{$school->school_name}}</option>
             @endforeach
         </select>
 
@@ -113,10 +113,9 @@
     </table>
 </div>
     <br>
-    <br>
 
-    <div id="show">
-        <input type="hidden" id="btnValue" value="1" />
+    <div id="frame">
+        <iframe src="" id="detail_info" name="detail_info" width="100%" height="600px" frameborder="0" scrolling="no"></iframe>
     </div>
 @stop
 
@@ -141,7 +140,14 @@
 @section('scripts')
 
     <script type="text/javascript">
+        function query_detail(){
+            var ff = document.getElementById("detail_info");
+            if (ff != null){
+                ff.src ="{{{ URL::to('admin/admissions/edit_admissions_province') }}}" + "?student_id="+ $("#student_id").val() ;
+            }
+            $('#frame').show();
 
+        }
         $(document).ready(function() {
             oTable = $('#admissions').dataTable( {
                 "searching":false,
@@ -203,17 +209,13 @@
                     oTable.fnReloadAjax();
                 });
                 $("#btnEdit").click(function(){
-                    //id=$(this).attr('title');
-                    $('#show_info').show();
-                    $('#btnValue').val(2);
-                 //   $("#show_info").load("admin/admissions/edit_admissions_province");
-                });
-
-                $("#btnSave").click(function(){
-                    $('#btnValue').val(3);
+                 //   query_detail();
                     oTable.fnReloadAjax();
                 });
+
             });
+
+
         });
 
     </script>

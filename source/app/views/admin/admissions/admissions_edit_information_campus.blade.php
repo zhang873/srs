@@ -53,7 +53,6 @@
         </table>
     <div  class="form-group" align="center">
         <button id="btnOk" name="state" value="1" class="btn btn-small btn-info" type="submit">确定</button>
-        <input type="hidden" id="admission_id[]" name="admission_id"/>
     </div>
 @stop
 
