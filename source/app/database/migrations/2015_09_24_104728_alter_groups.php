@@ -15,19 +15,49 @@ class AlterGroups extends Migration {
 		Schema::table('groups', function(Blueprint $table)
 		{
 			//
-			$table->tinyInteger('major_classification')->nullable();//new
-			$table->string('major',255)->nullable();//new
-			$table->smallInteger('year')->nullable();//new
-			$table->tinyInteger('semester')->nullable();//new
-			$table->tinyInteger('having_stu_no')->nullable();//new
+			if (Schema::hasColumn('groups', 'major_classification') == false) {
+				$table->tinyInteger('major_classification')->nullable();//new
+			}
+			
+			if (Schema::hasColumn('groups', 'major') == false) {
+				$table->string('major',255)->nullable();//new
+			}
+			
+			if (Schema::hasColumn('groups', 'year') == false) {
+				$table->smallInteger('year')->nullable();//new
+			}
+			
+			if (Schema::hasColumn('groups', 'semester') == false) {
+				$table->tinyInteger('semester')->nullable();//new
+			}
+			
+			if (Schema::hasColumn('groups', 'having_stu_no') == false) {
+				$table->tinyInteger('having_stu_no')->nullable();//new
+			}
+			
+			if (Schema::hasColumn('groups', 'class_adviser') == false) {
 			$table->string('class_adviser',31)->nullable();//new
-			$table->string('exam_point',127)->nullable();//new
-			$table->tinyInteger('is_deleted')->nullable();//new
+			}
 			
-			$table->integer('campus_id')->unsigned();//new
-			$table->integer('school_id')->unsigned();//new
+			if (Schema::hasColumn('groups', 'exam_point') == false) {
+				$table->string('exam_point',127)->nullable();//new
+			}
 			
-			$table->foreign('campus_id')->references('id')->on('campuses');
+			if (Schema::hasColumn('groups', 'is_deleted') == false) {
+				$table->tinyInteger('is_deleted')->nullable();//new
+			}
+			
+			if (Schema::hasColumn('groups', 'campus_id') == false) {
+				$table->integer('campus_id')->unsigned();//new
+			}
+			
+			if (Schema::hasColumn('groups', 'school_id') == false) {
+				$table->integer('school_id')->unsigned();//new
+			}
+			
+			if (Schema::hasColumn('groups', 'campus_id') == false) {
+				$table->foreign('campus_id')->references('id')->on('campuses');
+			}
 			//$table->foreign('school_id')->references('school_id')->on('school_info');
 		});
 	}

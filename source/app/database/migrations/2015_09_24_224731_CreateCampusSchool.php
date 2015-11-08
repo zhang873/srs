@@ -12,16 +12,18 @@ class CreateCampusSchool extends Migration {
 	 */
 	public function up()
 	{
-		Schema::create('campus_school', function(Blueprint $table)
-		{
-			$table->increments('id');
-			$table->timestamps();
-			$table->integer('campus_id')->unsigned();
-			$table->integer('school_id');
-			
-			//$table->foreign('campus_id')->references('id')->on('campuses');
-			//$table->foreign('school_id')->references('school_id')->on('school_info');
-		});
+		if (Schema::hasTable('campus_school') == false) {
+			Schema::create('campus_school', function(Blueprint $table)
+			{
+				$table->increments('id');
+				$table->timestamps();
+				$table->integer('campus_id')->unsigned();
+				$table->integer('school_id');
+				
+				//$table->foreign('campus_id')->references('id')->on('campuses');
+				//$table->foreign('school_id')->references('school_id')->on('school_info');
+			});
+		}
 	}
 
 	/**

@@ -14,7 +14,7 @@ class AltAdmissionsTable extends Migration {
 		Schema::table('admissions', function(Blueprint $table)
 		{
 			//add column 'admissionid'
-		    $table->string('admissionid', 100);
+		    //$table->string('admissionid', 100);
 		});
 	}
 
@@ -28,7 +28,7 @@ class AltAdmissionsTable extends Migration {
 		Schema::table('admissions', function(Blueprint $table)
 		{
 			//drop column 'admissionid'
-		    $table->dropColumn('admissionid');
+		    //$table->dropColumn('admissionid');
 		});
 	}
 
